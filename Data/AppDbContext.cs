@@ -21,7 +21,7 @@ namespace ProjetoPokeShop.Data
 
             modelBuilder.Entity<UserPokemon>()
                 .HasOne(up => up.User)
-                .WithMany(u => u.Pokeball)
+                .WithMany()
                 .HasForeignKey(p => p.UserId);
 
             modelBuilder.Entity<UserPokemon>()

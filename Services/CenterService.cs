@@ -1,6 +1,9 @@
 using System.Net.Http.Headers;
+using System.Security.Cryptography;
+using System.Transactions;
 using Microsoft.EntityFrameworkCore;
 using ProjetoPokeShop.Data;
+using ProjetoPokeShop.DTOs;
 using ProjetoPokeShop.Models;
 
 namespace ProjetoPokeShop.Services
@@ -20,8 +23,11 @@ namespace ProjetoPokeShop.Services
                 .ToListAsync();
         }
 
-        public async Task<Pokemon> BuyPokemon(int pokemonCenterId, int userId)
+        public async Task<BuyResultDto> BuyPokemon(int pokemonCenterId, int userId)
         {
+            using var transaction = await _context.Database.BeginTransactionAsync();
+
+
             var outPokemon = await _context.PokemonCenter
                 .Include(pc => pc.Pokemon)
                 .FirstOrDefaultAsync(pc => pc.Id == pokemonCenterId);
@@ -40,7 +46,9 @@ namespace ProjetoPokeShop.Services
             if (user.Coins < outPokemon.Pokemon.Value)
                 throw new InvalidOperationException("Not enough coins");
 
-            user.Coins -= outPokemon.Pokemon.Value;
+            int outPokemonValue = outPokemon.Pokemon.Value;
+
+            user.Coins -= outPokemonValue;
 
             outPokemon.Pokemon.OwnerId = userId;
 
@@ -51,7 +59,25 @@ namespace ProjetoPokeShop.Services
             });
 
             await _context.SaveChangesAsync();
-            return outPokemon.Pokemon;
+
+            await transaction.CommitAsync();
+
+            return new BuyResultDto
+            {
+                Name = outPokemon.Pokemon.Name,
+
+                Nature = outPokemon.Pokemon.Nature,
+
+                Type = outPokemon.Pokemon.Type,
+
+                Value = outPokemon.Pokemon.Value,
+
+                Rarity = outPokemon.Pokemon.Rarity,
+
+                PokemonMarketValue = outPokemonValue,
+
+                CoinsAdjustment = $"- {outPokemonValue}"
+            };
         }
     }
 }
