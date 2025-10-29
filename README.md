@@ -1,7 +1,6 @@
-# __Simple project designed to serve an CRUD APi (Create, Read, Update and Delete) using pokémons;__
+# Simple project designed to serve a CRUD API (Create, Read, Update, and Delete) using Pokémons
 
-
-## _Futuras implementações:'
-+Hash de senha no LoginService para produção;
-+Tratamento de exceções mais detalhado dentro das transações, caso desejado;
-+Separação de regras de negócio e CRUD.
+## Futuras implementações
+- Hash de senha no LoginService para produção
+- Tratamento de exceções mais detalhado dentro das transações, caso desejado
+- Separação de regras de negócio e CRUD
