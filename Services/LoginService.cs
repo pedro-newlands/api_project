@@ -10,7 +10,7 @@ namespace ProjetoPokeShop.Services
 
         public LoginService(AppDbContext context) => _context = context;
 
-        public async Task<User> FirstLogin(string username, string password)
+        public async Task<User> Login(string username, string password)
         {
             var user = await _context.Users.FirstOrDefaultAsync(u => u.UserName == username);
 
@@ -20,8 +20,6 @@ namespace ProjetoPokeShop.Services
                 {
                     UserName = username,
                     PasswordHash = password,
-                    Coins = 100,
-                    FirstLogin = true
                 };
 
                 await _context.Users.AddAsync(user);
@@ -30,13 +28,12 @@ namespace ProjetoPokeShop.Services
             }
 
             if (user.PasswordHash != password)
-                return null;
+                throw new ArgumentException("Password is incorrect");
 
             if (!user.FirstLogin)
             {
                 user.FirstLogin = true;
                 user.Coins += 100;
-                _context.Users.Update(user);
                 await _context.SaveChangesAsync();
             }
             return user;

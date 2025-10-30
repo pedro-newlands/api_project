@@ -13,14 +13,29 @@ namespace ProjetoPokeShop.Services
     public class CenterService : ICenterService
     {
         readonly AppDbContext _context;
+        private static readonly Random _rng = new Random();
 
         public CenterService(AppDbContext context) => _context = context;
 
-        public async Task<List<PokemonCenter>> GetAvailablePokemons()
+        public async Task<List<PokemonDto>> GetAvailablePokemons()
         {
             return await _context.PokemonCenter
                 .Include(pc => pc.Pokemon)
                 .Where(pc => pc.Pokemon.OwnerId == null)
+                .Select(pc => new PokemonDto
+                {
+                    PokemonCenterId = pc.Id,
+                    
+                    Name = pc.Pokemon.Name,
+
+                    Nature = pc.Pokemon.Nature,
+
+                    Type = pc.Pokemon.Type,
+
+                    MarketValue = pc.Pokemon.Value,
+
+                    Rarity = pc.Pokemon.Rarity
+                })
                 .AsNoTracking()
                 .ToListAsync();
         }
@@ -29,13 +44,12 @@ namespace ProjetoPokeShop.Services
         {
             using var transaction = await _context.Database.BeginTransactionAsync();
 
-
             var outPokemon = await _context.PokemonCenter
                 .Include(pc => pc.Pokemon)
                 .FirstOrDefaultAsync(pc => pc.Id == pokemonCenterId);
 
             if (outPokemon == null)
-                throw new ArgumentException("Pokémon not found");
+                throw new KeyNotFoundException("Pokémon not found");
 
             if (outPokemon.Pokemon.OwnerId != null)
                 throw new InvalidOperationException("Pokémon is no longer available");
@@ -43,7 +57,7 @@ namespace ProjetoPokeShop.Services
             var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == userId);
 
             if (user == null)
-                throw new ArgumentException("User not found");
+                throw new KeyNotFoundException("User not found");
 
             if (user.Coins < outPokemon.Pokemon.Value)
                 throw new InvalidOperationException("Not enough coins");
@@ -66,74 +80,82 @@ namespace ProjetoPokeShop.Services
 
             return new BuyResultDto
             {
-                Name = outPokemon.Pokemon.Name,
+                OwnerId = outPokemon.Pokemon.OwnerId,
+
+                PokemonName = outPokemon.Pokemon.Name,
 
                 Nature = outPokemon.Pokemon.Nature,
 
                 Type = outPokemon.Pokemon.Type,
 
-                Value = outPokemon.Pokemon.Value,
-
                 Rarity = outPokemon.Pokemon.Rarity,
 
                 PokemonMarketValue = outPokemonValue,
 
-                CoinsAdjustment = $"- {outPokemonValue}"
+                CoinsAdjustment = $"- {outPokemonValue:C0}"
             };
         }
 
-        public async Task<PokemonDto> Pokeball(int userId)
+        public async Task<PokeballDto> Pokeball(int userId)
         {
             var user = await _context.Users.FindAsync(userId);
 
             if (user == null)
                 throw new KeyNotFoundException("User not found");
 
-            const int pokeballCost = 20;
+            const int pokeballCost = 45;
 
             if (user.Coins < pokeballCost)
-                throw new ArgumentException("Not enough coins");
+                throw new InvalidOperationException("Not enough coins");
 
             user.Coins -= pokeballCost;
 
             var rarity = RollRarity();
 
             var pokemons = await _context.Pokemons
-                .Where(p => p.Rarity == rarity)
+                .Where(p => p.Rarity == rarity && p.OwnerId == null)
                 .ToListAsync();
 
             if (!pokemons.Any())
-                throw new InvalidOperationException("None Pokemon from this rarity exists");
+                throw new InvalidOperationException("No Pokémon available in this rarity");
 
-            var random = new Random();
-            var randomPokemon = pokemons[random.Next(pokemons.Count)];
+            var randomPokemon = pokemons[_rng.Next(pokemons.Count)];
 
             _context.UserPokemons.Add(new UserPokemon
             {
                 UserId = userId,
 
-                PokemonId = randomPokemon.Id
+                PokemonId = randomPokemon.Id,
             });
+
+            randomPokemon.OwnerId = user.Id;
+
 
             await _context.SaveChangesAsync();
 
-            return new PokemonDto
+            return new PokeballDto
             {
-                Name = randomPokemon.Name,
+                Pokeball = "Poké Ball",
+
+                Rarity = rarity,
+
+                PokemonName = randomPokemon.Name,
 
                 Nature = randomPokemon.Nature,
 
                 Type = randomPokemon.Type,
 
-                Value = randomPokemon.Value,
+                PokemonMarketValue = randomPokemon.Value,
 
-                Rarity = rarity
+                OwnerId = randomPokemon.OwnerId,
+
+                CoinsAdjustment = $"- {pokeballCost}"
             };
         }
-        
+
         private PokemonRarity RollRarity()
         {
-            var random = new Random().Next(100);
+            var random = _rng.Next(100);
 
             if (random < 45)
                 return PokemonRarity.Common;

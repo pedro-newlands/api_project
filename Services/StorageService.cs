@@ -13,14 +13,28 @@ namespace ProjetoPokeShop.Services
 
         public StorageService(AppDbContext context) => _context = context;
 
-        public async Task<List<UserPokemon>> Inventory(int userId)
+        public async Task<List<PokemonDto>> Inventory(int userId)
         {
             if (!await _context.UserPokemons.AnyAsync(up => up.UserId == userId))
-                throw new ArgumentException("No inventory for this user");
+                throw new KeyNotFoundException("No inventory for this user");
             
             var storage = await _context.UserPokemons
                 .Include(up => up.Pokemon)
                 .Where(up => up.UserId == userId)
+                .Select(up => new PokemonDto
+                {
+                    UserPokemonId = up.Id,
+
+                    Name = up.Pokemon.Name,
+
+                    Nature = up.Pokemon.Nature,
+
+                    Type = up.Pokemon.Type,
+
+                    MarketValue = up.Pokemon.Value,
+
+                    Rarity = up.Pokemon.Rarity
+                })
                 .AsNoTracking()
                 .ToListAsync();
 
@@ -37,15 +51,15 @@ namespace ProjetoPokeShop.Services
                 .FirstOrDefaultAsync(up => up.Id == userPokemonId);
 
             if (userPokemon == null)
-                throw new ArgumentException("Pokémon does not exist");
+                throw new KeyNotFoundException("Pokémon does not exist");
 
             if (userPokemon.UserId != userId)
-                throw new ArgumentException("This pokémon does not belong to this user");
+                throw new InvalidOperationException("This pokémon does not belong to this user");
 
             var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == userId);
 
             if (user == null)
-                throw new ArgumentException("User does not exist");
+                throw new KeyNotFoundException("User does not exist");
             
             int userPokemonValue = userPokemon.Pokemon.Value;
 
@@ -61,9 +75,15 @@ namespace ProjetoPokeShop.Services
 
             return new SellResultDto
             {
-                UserId = userId,
+                UserName = user.UserName,
 
-                PokemonId = userPokemon.Pokemon.Id,
+                PokemonName = userPokemon.Pokemon.Name,
+
+                Nature = userPokemon.Pokemon.Nature,
+
+                Type = userPokemon.Pokemon.Type,
+
+                Rarity = userPokemon.Pokemon.Rarity,
 
                 PokemonMarketValue = userPokemonValue,
 

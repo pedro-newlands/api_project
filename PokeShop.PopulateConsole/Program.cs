@@ -1,0 +1,64 @@
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Text;
+using ProjetoPokeShop.Models;
+class PopulatePokeShopScript
+{
+    static void Main()
+    {
+        string[] names = new string[] { "Pikachu", "Bicharp", "Charizard", "Mewtwo" };
+
+        string[] natures = new string[] { "Modest", "Adamant", "Timid", "Quiet" };
+
+        string[] types = new string[] { "Electric", "Dark-Steel", "Fire-Fly", "Psychic" };
+
+        PokemonRarity[] rarities = { PokemonRarity.Common, PokemonRarity.Uncommon, PokemonRarity.Rare, PokemonRarity.Legendary };
+
+        var rarityValues = new Dictionary<PokemonRarity, int>
+        {
+            { PokemonRarity.Common, 20 },
+            { PokemonRarity.Uncommon, 40 },
+            { PokemonRarity.Rare, 60 },
+            { PokemonRarity.Legendary, 80}
+        };
+
+        List<int> pokemonIds = new List<int>();
+        // Dictionary<string, int> rarityValues = new () { };
+        var utf8NoBom = new UTF8Encoding(false);
+        // using StreamWriter sw = new StreamWriter("PopulatePokeShop.sql"); //versão morder * C8.0 +
+        using (StreamWriter sw = new StreamWriter("PopulatePokeShop_Updated.sql", false, utf8NoBom)) //versão clássica
+        {
+            sw.WriteLine("-- Users");
+            sw.WriteLine("INSERT INTO Users (UserName, PasswordHash, Coins, FirstLogin) VALUES ('Ash','1234',100,1),('Misty','1234',100,1),('Brock','1234',100,1);");
+            sw.WriteLine();
+
+            sw.WriteLine("-- Pokémons");
+            int pokemonIdCounter = 1;
+            for (int i = 0; i < names.Length; i++)
+            {
+                string name = names[i];
+                string nature = natures[i];
+                string type = types[i];
+                PokemonRarity rarity = rarities[i];
+                int value = rarityValues[rarity];
+
+                sw.WriteLine($"INSERT INTO Pokemons (Name, Nature, Type, Value, Rarity, OwnerId) VALUES ('{name}', '{nature}', '{type}', {value}, '{rarity}', NULL);");
+
+                pokemonIds.Add(pokemonIdCounter);
+                pokemonIdCounter++;
+            }
+
+            sw.WriteLine();
+
+            sw.WriteLine("-- Pokémon Center");
+            foreach (var id in pokemonIds)
+                sw.WriteLine($"INSERT INTO PokemonCenter (PokemonId) VALUES ({id});");
+
+            sw.WriteLine();
+            sw.WriteLine("-- Script generated");
+            Console.WriteLine("Script PopulatePokeShop.sql created");
+        }
+
+    }
+}
