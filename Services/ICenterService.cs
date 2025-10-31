@@ -1,11 +1,10 @@
 using ProjetoPokeShop.DTOs;
-using ProjetoPokeShop.Models;
 
 namespace ProjetoPokeShop.Services
 {
     public interface ICenterService
     {
-        Task<List<PokemonDto>> GetAvailablePokemons();
+        Task<IEnumerable<AvailablePokemonDto>> GetAvailablePokemons();
 
         Task<BuyResultDto> BuyPokemon(int pokemonCenterId, int userId);
 

@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
 using ProjetoPokeShop.DTOs;
-using ProjetoPokeShop.Models;
 using ProjetoPokeShop.Services;
 
 namespace ProjetoPokeShop.Controllers
@@ -15,7 +14,7 @@ namespace ProjetoPokeShop.Controllers
         public StorageController(IStorageService storageService) => _storageService = storageService;
 
         [HttpGet("inventory/{id}")]
-        public async Task<ActionResult<List<PokemonDto>>> Inventory([FromRoute] int id)
+        public async Task<IActionResult> Inventory([FromRoute] int id)
         {
             try
             {

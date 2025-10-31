@@ -1,4 +1,3 @@
-using Microsoft.Extensions.Configuration.UserSecrets;
 using ProjetoPokeShop.Models;
 
 namespace ProjetoPokeShop.DTOs

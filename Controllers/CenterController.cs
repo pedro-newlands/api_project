@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
 using ProjetoPokeShop.DTOs;
-using ProjetoPokeShop.Models;
 using ProjetoPokeShop.Services;
 
 namespace ProjetoPokeShop.Controllers
@@ -15,7 +14,7 @@ namespace ProjetoPokeShop.Controllers
         public CenterController(ICenterService centerService) => _centerService = centerService;
 
         [HttpGet("center")]
-        public async Task<ActionResult<List<PokemonDto>>> GetAvailablePokemons()
+        public async Task<IActionResult> GetAvailablePokemons()
         {
             var pokemonsForSale = await _centerService.GetAvailablePokemons();
 

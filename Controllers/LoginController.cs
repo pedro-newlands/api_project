@@ -3,6 +3,7 @@ using ProjetoPokeShop.DTOs;
 using ProjetoPokeShop.Models;
 using ProjetoPokeShop.Services;
 
+
 namespace ProjetoPokeShop.Controllers
 {
     [ApiController]
@@ -31,6 +32,6 @@ namespace ProjetoPokeShop.Controllers
             {
                 return BadRequest(new { message = ex.Message });
             }
-        }
+        }  
     }
 }

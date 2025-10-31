@@ -13,7 +13,7 @@ namespace ProjetoPokeShop.Services
 
         public StorageService(AppDbContext context) => _context = context;
 
-        public async Task<List<PokemonDto>> Inventory(int userId)
+        public async Task<IEnumerable<EngagedPokemonDto>> Inventory(int userId)
         {
             if (!await _context.UserPokemons.AnyAsync(up => up.UserId == userId))
                 throw new KeyNotFoundException("No inventory for this user");
@@ -21,7 +21,7 @@ namespace ProjetoPokeShop.Services
             var storage = await _context.UserPokemons
                 .Include(up => up.Pokemon)
                 .Where(up => up.UserId == userId)
-                .Select(up => new PokemonDto
+                .Select(up => new EngagedPokemonDto
                 {
                     UserPokemonId = up.Id,
 

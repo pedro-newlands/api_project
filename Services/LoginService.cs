@@ -22,7 +22,7 @@ namespace ProjetoPokeShop.Services
                     PasswordHash = password,
                 };
 
-                await _context.Users.AddAsync(user);
+                _context.Users.Add(user);
                 await _context.SaveChangesAsync();
                 return user;
             }
@@ -39,4 +39,4 @@ namespace ProjetoPokeShop.Services
             return user;
         }
     }
-}
+} 

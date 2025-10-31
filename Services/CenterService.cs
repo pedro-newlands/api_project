@@ -1,8 +1,3 @@
-using System.Net.Http.Headers;
-using System.Runtime.CompilerServices;
-using System.Security.Cryptography;
-using System.Security.Cryptography.X509Certificates;
-using System.Transactions;
 using Microsoft.EntityFrameworkCore;
 using ProjetoPokeShop.Data;
 using ProjetoPokeShop.DTOs;
@@ -17,12 +12,12 @@ namespace ProjetoPokeShop.Services
 
         public CenterService(AppDbContext context) => _context = context;
 
-        public async Task<List<PokemonDto>> GetAvailablePokemons()
+        public async Task<IEnumerable<AvailablePokemonDto>> GetAvailablePokemons()
         {
             return await _context.PokemonCenter
                 .Include(pc => pc.Pokemon)
                 .Where(pc => pc.Pokemon.OwnerId == null)
-                .Select(pc => new PokemonDto
+                .Select(pc => new AvailablePokemonDto
                 {
                     PokemonCenterId = pc.Id,
                     
