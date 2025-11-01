@@ -79,22 +79,22 @@ namespace api_project.Services
         {
             await AdminAsync(superPassword);
 
-            var Targetuser = await _context.Users.FindAsync(targetId);
+            var targetUser = await _context.Users.FindAsync(targetId);
 
-            if (Targetuser == null)
+            if (targetUser == null)
                 throw new KeyNotFoundException("User not found");
 
-            if (Targetuser.UserName == "admin")
+            if (targetUser.UserName == "admin")
                 throw new InvalidOperationException("'admin' can not be updated");
 
             if (!string.IsNullOrEmpty(dto.UpUsername))
-                Targetuser.UserName = dto.UpUsername;
+                targetUser.UserName = dto.UpUsername;
 
             if (dto.UpCoins.HasValue)
-                Targetuser.Coins = dto.UpCoins.Value;
+                targetUser.Coins = dto.UpCoins.Value;
 
             if (dto.FirstLogin.HasValue)
-                Targetuser.FirstLogin = dto.FirstLogin.Value;
+                targetUser.FirstLogin = dto.FirstLogin.Value;
            
             await _context.SaveChangesAsync();
 
@@ -102,7 +102,7 @@ namespace api_project.Services
             {
                 Message = "'Update' succeed",
 
-                TargetEntity = Targetuser
+                TargetEntity = targetUser
             };
         }
 
@@ -185,7 +185,7 @@ namespace api_project.Services
 
                 OwnerId = dto.OwnerId
             };
-            
+
             // var exists = await _context.Pokemons --> MySql
             //     .AnyAsync(p => EF.Functions.Collate(p.Name, "SQL_Latin1_General_CP1_CI_AS") == pokemon.Name);
 
@@ -195,8 +195,20 @@ namespace api_project.Services
             pokemon.Value = Pokemon.GetDefaultValue(pokemon.Rarity);
             _context.Pokemons.Add(pokemon);
             _context.PokemonCenter.Add(new PokemonCenter { Pokemon = pokemon });
+
+            if (dto.OwnerId != null)
+                _context.UserPokemons.Add(new UserPokemon
+                {
+                    UserId = dto.OwnerId.Value,
+
+                    Pokemon = pokemon
+                });
+
             await _context.SaveChangesAsync();
 
+            if (pokemon.OwnerId != null)
+                await _context.Entry(pokemon).Reference(p => p.Owner).LoadAsync();
+    
             return new ResultDto<Pokemon>
             {
                 Message = "'Post' succeed",
@@ -209,65 +221,76 @@ namespace api_project.Services
         {
             await AdminAsync(superPassword);
 
-            var exists = dto.OwnerId != null ? await _context.Users.AnyAsync(u => u.Id == dto.OwnerId) : true;
-            if (!exists)
-                throw new KeyNotFoundException("User not found");
+            if (dto.OwnerId != null)
+            {
+                var exists = await _context.Users.AnyAsync(u => u.Id == dto.OwnerId);
+                if (!exists) throw new KeyNotFoundException("User not found");
+            }
 
-            var pokemon = await _context.Pokemons.Include(p => p.Owner).FirstOrDefaultAsync(p => p.Id == targetId);
+            var pokemon = await _context.Pokemons
+                .Include(p => p.Owner)
+                .FirstOrDefaultAsync(p => p.Id == targetId);
 
-            if (pokemon == null)
-                throw new KeyNotFoundException("Pokemon not Found");
+            if (pokemon == null) throw new KeyNotFoundException("Pokemon not found");
 
-            if (!string.IsNullOrEmpty(dto.Name))
-                pokemon.Name = dto.Name;
-
-            if (!string.IsNullOrEmpty(dto.Type))
-                pokemon.Type = dto.Type;
-
-            if (!string.IsNullOrEmpty(dto.Nature))
-                pokemon.Nature = dto.Nature;
-
-            if (dto.Rarity.HasValue)
-                pokemon.Rarity = dto.Rarity.Value;
-
-            if (dto.Value.HasValue)
-                pokemon.Value = dto.Value.Value;
-            else
-                pokemon.Value = Pokemon.GetDefaultValue(pokemon.Rarity);
+            pokemon.Name = dto.Name ?? pokemon.Name;
+            pokemon.Type = dto.Type ?? pokemon.Type;
+            pokemon.Nature = dto.Nature ?? pokemon.Nature;
+            pokemon.Rarity = dto.Rarity ?? pokemon.Rarity;
+            pokemon.Value = dto.Value ?? Pokemon.GetDefaultValue(pokemon.Rarity);
 
             pokemon.OwnerId = dto.OwnerId;
 
-            await _context.SaveChangesAsync();
+            var userPokemon = await _context.UserPokemons
+                .FirstOrDefaultAsync(up => up.PokemonId == pokemon.Id);
+
+            if (dto.OwnerId != null)
+            {
+                if (userPokemon != null)
+                    userPokemon.UserId = dto.OwnerId.Value;
+                else
+                    _context.UserPokemons.Add(new UserPokemon
+                    {
+                        UserId = dto.OwnerId.Value,
+                        PokemonId = pokemon.Id,
+                        AcquiredAt = DateTime.UtcNow
+                    });
+            }
+            else if (userPokemon != null)
+            {
+                _context.UserPokemons.Remove(userPokemon);
+            }
 
             await _context.SaveChangesAsync();
+
+            if (pokemon.OwnerId != null)
+                await _context.Entry(pokemon).Reference(p => p.Owner).LoadAsync();
 
             return new ResultDto<Pokemon>
             {
                 Message = "'Update' succeed",
-
                 TargetEntity = pokemon
             };
         }
+                public async Task<ResultDto<Pokemon>> DeletePokemon(string superPassword, int targetId)
+                {
+                    await AdminAsync(superPassword);
 
-        public async Task<ResultDto<Pokemon>> DeletePokemon(string superPassword, int targetId)
-        {
-            await AdminAsync(superPassword);
+                    var targetPokemon = await _context.Pokemons.FindAsync(targetId);
 
-            var targetPokemon = await _context.Pokemons.FindAsync(targetId);
+                    if (targetPokemon == null)
+                        throw new KeyNotFoundException("Pokémon does not exist");
 
-            if (targetPokemon == null)
-                throw new KeyNotFoundException("Pokémon does not exist");
+                    _context.Pokemons.Remove(targetPokemon);
+                    await _context.SaveChangesAsync();
 
-            _context.Pokemons.Remove(targetPokemon);
-            await _context.SaveChangesAsync();
+                    return new ResultDto<Pokemon>
+                    {
+                        Message = "'Delete' succeed",
 
-            return new ResultDto<Pokemon>
-            {
-                Message = "'Delete' succeed",
-
-                TargetEntity = targetPokemon
-            };
-        }
+                        TargetEntity = targetPokemon
+                    };
+                }
 
         //pokemon center management
         public async Task<ResultDto<PokemonCenter>> DeletePokemonCenter(string superPassword, int targetId)
