@@ -1,3 +1,4 @@
+using api_project.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using ProjetoPokeShop.Data;
@@ -10,6 +11,7 @@ var connectionString = builder.Configuration.GetConnectionString("AppDbConnectio
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)));
 
+builder.Services.AddScoped<IManagementService, ManagementService>();
 builder.Services.AddScoped<ICenterService, CenterService>();
 builder.Services.AddScoped<ILoginService, LoginService>();
 builder.Services.AddScoped<IStorageService, StorageService>();

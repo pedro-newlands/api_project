@@ -1,14 +1,26 @@
+using System.ComponentModel.DataAnnotations;
 using ProjetoPokeShop.Models;
 
 namespace ProjetoPokeShop.DTOs
 {
     public class PokemonDto
     {
-        public string Name { get; set; } = string.Empty;
-        public string Nature { get; set; } = string.Empty;
-        public string Type { get; set; } = string.Empty;
+        [Required]
+        [MinLength(2)]
+        public string Name { get; set; }
+
+        [Required]
+        [MinLength(2)]
+        public string Nature { get; set; }
+
+        [Required]
+        [MinLength(2)]
+        public string Type { get; set; }
+
         public PokemonRarity Rarity { get; set; }
+        
         public int Value { get; set; }
-        public int OwnerId { get; set; }
+
+        public int? OwnerId { get; set; }
     }
 }

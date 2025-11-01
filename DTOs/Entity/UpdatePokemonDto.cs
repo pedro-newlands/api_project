@@ -1,8 +1,9 @@
+using System.ComponentModel.DataAnnotations;
 using ProjetoPokeShop.Models;
 
 namespace ProjetoPokeShop.DTOs
 {
-    public class PokemonDto
+    public class UpdatePokemonDto
     {
         public string? Name { get; set; }
 

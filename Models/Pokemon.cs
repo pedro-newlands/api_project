@@ -15,6 +15,15 @@ namespace ProjetoPokeShop.Models
         public PokemonRarity Rarity { get; set; } // Common, Uncommon, Rare, Legendary
 
         public int? OwnerId { get; set; } // NULL = disponível
-        public User Owner { get; set; }
+        public User? Owner { get; set; }
+        
+        public static int GetDefaultValue(PokemonRarity rarity) => rarity switch
+        {
+            PokemonRarity.Common => 20,
+            PokemonRarity.Uncommon => 40,
+            PokemonRarity.Rare => 60,
+            PokemonRarity.Legendary => 80,
+            _ => 0
+        };
     }
 }

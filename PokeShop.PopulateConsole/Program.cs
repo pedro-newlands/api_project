@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Text;
+﻿using System.Text;
 using ProjetoPokeShop.Models;
 class PopulatePokeShopScript
 {
@@ -30,7 +27,8 @@ class PopulatePokeShopScript
         using (StreamWriter sw = new StreamWriter("PopulatePokeShop_Updated.sql", false, utf8NoBom)) //versão clássica
         {
             sw.WriteLine("-- Users");
-            sw.WriteLine("INSERT INTO Users (UserName, PasswordHash, Coins, FirstLogin) VALUES ('Ash','1234',100,1),('Misty','1234',100,1),('Brock','1234',100,1);");
+
+            sw.WriteLine("INSERT INTO Users (UserName, PasswordHash, Coins, FirstLogin) VALUES ('admin', '1010'),('Ash','1234',100,1),('Misty','1234',100,1),('Brock','1234',100,1);");
             sw.WriteLine();
 
             sw.WriteLine("-- Pokémons");

@@ -33,7 +33,9 @@ namespace ProjetoPokeShop.Services
 
                     MarketValue = up.Pokemon.Value,
 
-                    Rarity = up.Pokemon.Rarity
+                    Rarity = up.Pokemon.Rarity,
+
+                    AcquiredAt = DateTime.UtcNow
                 })
                 .AsNoTracking()
                 .ToListAsync();

@@ -35,6 +35,12 @@ namespace ProjetoPokeShop.Data
                 .HasForeignKey(p => p.OwnerId)
                 .OnDelete(DeleteBehavior.SetNull);
 
+            modelBuilder.Entity<PokemonCenter>()
+                .HasOne(pc => pc.Pokemon)
+                .WithMany()
+                .HasForeignKey(pc => pc.PokemonId)
+                .OnDelete(DeleteBehavior.Cascade);
+
             modelBuilder.Entity<Pokemon>()
                 .Property(p => p.Rarity)
                 .HasConversion<string>();
