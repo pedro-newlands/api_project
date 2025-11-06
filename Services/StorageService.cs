@@ -15,7 +15,10 @@ namespace ProjetoPokeShop.Services
 
         public async Task<IEnumerable<EngagedPokemonDto>> Inventory(int userId)
         {
-            if (!await _context.UserPokemons.AnyAsync(up => up.UserId == userId))
+            if (await _context.Users.AnyAsync(u => u.Id == userId))
+                throw new KeyNotFoundException("User does not exist");
+
+            else if (!await _context.UserPokemons.AnyAsync(up => up.UserId == userId))
                 throw new KeyNotFoundException("No inventory for this user");
             
             var storage = await _context.UserPokemons

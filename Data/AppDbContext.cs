@@ -22,7 +22,8 @@ namespace ProjetoPokeShop.Data
             modelBuilder.Entity<UserPokemon>()
                 .HasOne(up => up.User)
                 .WithMany()
-                .HasForeignKey(p => p.UserId);
+                .HasForeignKey(p => p.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<UserPokemon>()
                 .HasOne(p => p.Pokemon)

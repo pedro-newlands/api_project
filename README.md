@@ -3,5 +3,5 @@
 ## Futuras implementações
 - Hash de senha no LoginService para produção
 - Tratamento de exceções mais detalhado dentro das transações, caso desejado
-- **Separação de regras de negócio e CRUD**
-- **Testes e compreensão dos ciclos e relações entre as tabelas**
+- Outros tipos de pokebolas
+- **Docker**

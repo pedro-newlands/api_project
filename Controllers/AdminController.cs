@@ -1,8 +1,8 @@
-using api_project.Services;
 using Microsoft.AspNetCore.Mvc;
 using ProjetoPokeShop.DTOs;
 using ProjetoPokeShop.DTOs.Entity;
 using ProjetoPokeShop.Models;
+using ProjetoPokeShop.Services;
 
 namespace api_project.Controllers
 
@@ -11,25 +11,25 @@ namespace api_project.Controllers
     [Route("api/[controller]")]
     public class AdminController : ControllerBase
     {
-        readonly IManagementService _managementService;
+        readonly IAdminService _adminService;
 
-        public AdminController(IManagementService managementService) => _managementService = managementService;
+        public AdminController(IAdminService managementService) => _adminService = managementService;
 
         //User management
         [HttpGet("users")]
-        public async Task<IActionResult> GetUsers([FromHeader(Name = "X-Super-Password")] string superPassword)
+        public async Task<IActionResult> GetAllUsersAsync([FromHeader(Name = "X-Super-Password")] string superPassword)
         {
-            var users = await _managementService.GetUsers(superPassword);
+            var users = await _adminService.GetAllUsersAsync(superPassword);
 
             return Ok(users);
         }
 
         [HttpGet("user/{id}")]
-        public async Task<ActionResult<ResultDto<User>>> GetUserById([FromHeader(Name = "X-Super-Password")] string superPassword, int id)
+        public async Task<ActionResult<ResultDto<User>>> GetUserByIdAsync([FromHeader(Name = "X-Super-Password")] string superPassword, int id)
         {
             try
             {
-                var pokemon = await _managementService.GetUserById(superPassword, id);
+                var pokemon = await _adminService.GetUserByIdAsync(superPassword, id);
 
                 return Ok(pokemon);
             }
@@ -45,13 +45,13 @@ namespace api_project.Controllers
 
         [HttpPost("user/create")]
 
-        public async Task<ActionResult<ResultDto<User>>> CreateUser([FromHeader(Name = "X-Super-Password")] string superPassword, [FromBody] UserDto dto)
+        public async Task<ActionResult<ResultDto<User>>> CreateUserAsync([FromHeader(Name = "X-Super-Password")] string superPassword, [FromBody] UserDto dto)
         {
             try
             {
-                var newUser = await _managementService.CreateUser(superPassword, dto);
+                var newUser = await _adminService.CreateUserAsync(superPassword, dto);
 
-                return CreatedAtAction(nameof(GetUserById), new { id = newUser.TargetEntity }, newUser);
+                return CreatedAtAction(nameof(GetUserByIdAsync), new { id = newUser.TargetEntity }, newUser);
             }
             catch (InvalidOperationException ex)
             {
@@ -64,11 +64,11 @@ namespace api_project.Controllers
         }
 
         [HttpPatch("user/update/{id}")]
-        public async Task<ActionResult<ResultDto<User>>> UpdateUser([FromHeader(Name = "X-Super-Password")] string superPassword, int id, [FromBody] UpdateUserDto dto)
+        public async Task<ActionResult<ResultDto<User>>> UpdateUserAsync([FromHeader(Name = "X-Super-Password")] string superPassword, int id, [FromBody] UpdateUserDto dto)
         {
             try
             {
-                var updatedUser = await _managementService.UpdateUser(superPassword, id, dto);
+                var updatedUser = await _adminService.UpdateUserAsync(superPassword, id, dto);
 
                 return Ok(updatedUser);
             }
@@ -83,11 +83,11 @@ namespace api_project.Controllers
         }
 
         [HttpDelete("user/delete/{id}")]
-        public async Task<ActionResult<ResultDto<User>>> DeleteUser([FromHeader(Name = "X-Super-Password")] string superPassword, int id)
+        public async Task<ActionResult<ResultDto<User>>> DeleteUserAsync([FromHeader(Name = "X-Super-Password")] string superPassword, int id)
         {
             try
             {
-                var deletedUser = await _managementService.DeleteUser(superPassword, id);
+                var deletedUser = await _adminService.DeleteUserAsync(superPassword, id);
 
                 return Ok(deletedUser);
             }
@@ -103,19 +103,19 @@ namespace api_project.Controllers
 
         //Pokemon management
         [HttpGet("pokemons")]
-        public async Task<IActionResult> GetPokemons([FromHeader(Name = "X-Super-Password")] string superPassword)
+        public async Task<IActionResult> GetAllPokemonsAsync([FromHeader(Name = "X-Super-Password")] string superPassword)
         {
-            var pokemons = await _managementService.GetPokemons(superPassword);
+            var pokemons = await _adminService.GetAllPokemonsAsync(superPassword);
 
             return Ok(pokemons);
         }
 
         [HttpGet("pokemon/{id}")]
-        public async Task<ActionResult<ResultDto<Pokemon>>> GetPokemonById([FromHeader(Name = "X-Super-Password")] string superPassword, int id)
+        public async Task<ActionResult<ResultDto<Pokemon>>> GetPokemonByIdAsync([FromHeader(Name = "X-Super-Password")] string superPassword, int id)
         {
             try
             {
-                var pokemon = await _managementService.GetPokemonById(superPassword, id);
+                var pokemon = await _adminService.GetPokemonByIdAsync(superPassword, id);
 
                 return Ok(pokemon);
             }
@@ -130,14 +130,14 @@ namespace api_project.Controllers
         }
 
         [HttpPost("pokemon/create")]
-        public async Task<ActionResult<ResultDto<Pokemon>>> CreatePokemon([FromHeader(Name = "X-Super-Password")] string superPassword, [FromBody] PokemonDto dto)
+        public async Task<ActionResult<ResultDto<Pokemon>>> CreatePokemonAsync([FromHeader(Name = "X-Super-Password")] string superPassword, [FromBody] PokemonDto dto)
         {
             try
             {
-                var newPokemon = await _managementService.CreatePokemon(superPassword, dto);
+                var newPokemon = await _adminService.CreatePokemonAsync(superPassword, dto);
 
                 return CreatedAtAction
-                    (nameof(GetPokemonById), new { id = newPokemon.TargetEntity.Id }, newPokemon);
+                    (nameof(GetPokemonByIdAsync), new { id = newPokemon.TargetEntity.Id }, newPokemon);
             }
             catch (InvalidOperationException ex)
             {
@@ -154,11 +154,11 @@ namespace api_project.Controllers
         }
 
         [HttpPatch("pokemon/update/{id}")]
-        public async Task<ActionResult<ResultDto<Pokemon>>> UpdatePokemon([FromHeader(Name = "X-Super-Password")] string superPassword, int id, [FromBody] UpdatePokemonDto dto)
+        public async Task<ActionResult<ResultDto<Pokemon>>> UpdatePokemonAsync([FromHeader(Name = "X-Super-Password")] string superPassword, int id, [FromBody] UpdatePokemonDto dto)
         {
             try
             {
-                var updatedPokemon = await _managementService.UpdatePokemon(superPassword, id, dto);
+                var updatedPokemon = await _adminService.UpdatePokemonAsync(superPassword, id, dto);
                 return Ok(updatedPokemon);
             }
             catch (KeyNotFoundException ex)
@@ -172,11 +172,11 @@ namespace api_project.Controllers
         }
 
         [HttpDelete("pokemon/delete/{id}")]
-        public async Task<ActionResult<ResultDto<Pokemon>>> DeletePokemon([FromHeader(Name = "X-Super-Password")] string superPassword, int id)
+        public async Task<ActionResult<ResultDto<Pokemon>>> DeletePokemonAsync([FromHeader(Name = "X-Super-Password")] string superPassword, int id)
         {
             try
             {
-                var deletedPokemon = await _managementService.DeletePokemon(superPassword, id);
+                var deletedPokemon = await _adminService.DeletePokemonAsync(superPassword, id);
 
                 return Ok(deletedPokemon);
             }
@@ -192,11 +192,11 @@ namespace api_project.Controllers
 
         //Pokemon center management
         [HttpPost("pokemoncenter/restore")]
-        public async Task<ActionResult<ResultDto<PokemonCenter>>> RestorePokemonCenter([FromHeader(Name = "X-Super-Password")] string superPassword, [FromBody] PokemonCenterDto dto)
+        public async Task<ActionResult<ResultDto<PokemonCenter>>> CreatePokemonCenterAsync([FromHeader(Name = "X-Super-Password")] string superPassword, [FromBody] PokemonCenter pokemonCenter)
         {
             try
             {
-                var oldPokemonCenter = await _managementService.RestorePokemonCenter(superPassword, dto);
+                var oldPokemonCenter = await _adminService.CreatePokemonCenterAsync(superPassword, pokemonCenter);
 
                 return Ok(oldPokemonCenter);
             }
@@ -215,11 +215,11 @@ namespace api_project.Controllers
         }
 
         [HttpDelete("pokemoncenter/delete/{id}")]
-        public async Task<ActionResult<ResultDto<PokemonCenter>>> DeletePokemonCenter([FromHeader(Name = "X-Super-Password")] string superPassword, int id)
+        public async Task<ActionResult<ResultDto<PokemonCenter>>> DeletePokemonCenterasync([FromHeader(Name = "X-Super-Password")] string superPassword, int id)
         {
             try
             {
-                var deletedPokemonCenter = await _managementService.DeletePokemonCenter(superPassword, id);
+                var deletedPokemonCenter = await _adminService.DeletePokemonCenterAsync(superPassword, id);
 
                 return Ok(deletedPokemonCenter);
             }
