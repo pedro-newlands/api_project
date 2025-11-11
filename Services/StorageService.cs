@@ -1,59 +1,65 @@
+using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using ProjetoPokeShop.Data;
 using ProjetoPokeShop.DTOs;
 using ProjetoPokeShop.Models;
+using ProjetoPokeShop.Repositories;
 
 namespace ProjetoPokeShop.Services
 {
     public class StorageService : IStorageService
     {
-        readonly AppDbContext _context;
+        readonly StorageRepository _repository;
 
-        public StorageService(AppDbContext context) => _context = context;
-
-        public async Task<IEnumerable<EngagedPokemonDto>> Inventory(int userId)
+        public StorageService(StorageRepository repository)
         {
-            if (await _context.Users.AnyAsync(u => u.Id == userId))
-                throw new KeyNotFoundException("User does not exist");
-
-            else if (!await _context.UserPokemons.AnyAsync(up => up.UserId == userId))
-                throw new KeyNotFoundException("No inventory for this user");
-            
-            var storage = await _context.UserPokemons
-                .Include(up => up.Pokemon)
-                .Where(up => up.UserId == userId)
-                .Select(up => new EngagedPokemonDto
-                {
-                    UserPokemonId = up.Id,
-
-                    Name = up.Pokemon.Name,
-
-                    Nature = up.Pokemon.Nature,
-
-                    Type = up.Pokemon.Type,
-
-                    MarketValue = up.Pokemon.Value,
-
-                    Rarity = up.Pokemon.Rarity,
-
-                    AcquiredAt = DateTime.UtcNow
-                })
-                .AsNoTracking()
-                .ToListAsync();
-
-            return storage;
+            _repository = repository;
         }
 
-        public async Task<SellResultDto> SellPokemon(int userId ,int userPokemonId)
+        public async Task<IEnumerable<EngagedPokemonDto>> GetInventoryAsync(int userId)
         {
-            using var transaction = await _context.Database.BeginTransactionAsync();
+            if (await _repository.UserExistsByIdasync(userId))
+                throw new KeyNotFoundException("User does not exist");
 
+            else if (!await _repository.UserPokemonExistsByUserIdAsync(userId))
+                throw new KeyNotFoundException("No inventory for this user");
 
-            var userPokemon = await _context.UserPokemons
-                .Include(up => up.Pokemon)
-                .FirstOrDefaultAsync(up => up.Id == userPokemonId);
+            var storage = await _repository.GetUserInventoryAsListAsync(userId);
+
+            IEnumerable<EngagedPokemonDto> formatedStorage = [];
+
+            foreach (var i in storage)
+            {
+                new EngagedPokemonDto
+                {
+                    UserPokemonId = i.Id,
+
+                    Name = i.Pokemon.Name,
+
+                    Nature = i.Pokemon.Nature,
+
+                    Type = i.Pokemon.Type,
+
+                    MarketValue = i.Pokemon.Value,
+
+                    Rarity = i.Pokemon.Rarity,
+
+                    AcquiredAt = i.AcquiredAt
+                };
+                
+                formatedStorage.Append(i);
+
+                return formatedStorage;
+            }
+            
+            
+
+        public async Task<SellResultDto> SellPokemonAsync(int userId, int userPokemonId)
+        {
+
+            var userPokemon = await _repository.GetUserPokemonById(userPokemonId);
 
             if (userPokemon == null)
                 throw new KeyNotFoundException("Pokémon does not exist");
@@ -61,22 +67,14 @@ namespace ProjetoPokeShop.Services
             if (userPokemon.UserId != userId)
                 throw new InvalidOperationException("This pokémon does not belong to this user");
 
-            var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == userId);
+            var user = await _repository.GetUserById(userId);
 
             if (user == null)
                 throw new KeyNotFoundException("User does not exist");
-            
+
             int userPokemonValue = userPokemon.Pokemon.Value;
 
-            user.Coins += userPokemonValue;
-
-            userPokemon.Pokemon.OwnerId = null;
-
-            _context.UserPokemons.Remove(userPokemon);
-
-            await _context.SaveChangesAsync();
-
-            await transaction.CommitAsync();
+            await _repository.SellUserPokemonAsync(userPokemon, user);
 
             return new SellResultDto
             {

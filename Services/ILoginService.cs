@@ -4,6 +4,6 @@ namespace ProjetoPokeShop.Services
 {
     public interface ILoginService
     {
-        Task<User> Login(string username, string password);
+        Task<User> LoginAsync(string username, string password);
     }
 }

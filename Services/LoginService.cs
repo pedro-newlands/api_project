@@ -1,18 +1,22 @@
 using Microsoft.EntityFrameworkCore;
 using ProjetoPokeShop.Data;
 using ProjetoPokeShop.Models;
+using ProjetoPokeShop.Repositories;
 
 namespace ProjetoPokeShop.Services
 {
     public class LoginService : ILoginService
     {
-        readonly AppDbContext _context;
+        readonly LoginRepository _repository;
 
-        public LoginService(AppDbContext context) => _context = context;
-
-        public async Task<User> Login(string username, string password)
+        public LoginService(LoginRepository repository)
         {
-            var user = await _context.Users.FirstOrDefaultAsync(u => u.UserName == username);
+            _repository = repository;
+        }
+
+        public async Task<User> LoginAsync(string username, string password)
+        {
+            var user = await _repository.GetUserByUserNameAsync(username);
 
             if (user == null)
             {
@@ -22,9 +26,7 @@ namespace ProjetoPokeShop.Services
                     PasswordHash = password,
                 };
 
-                _context.Users.Add(user);
-                await _context.SaveChangesAsync();
-                return user;
+                await _repository.CreateUserAsync(user);
             }
 
             if (user.PasswordHash != password)
