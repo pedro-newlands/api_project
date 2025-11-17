@@ -4,10 +4,10 @@ namespace ProjetoPokeShop.Services
 {
     public interface ICenterService
     {
-        Task<IEnumerable<AvailablePokemonDto>> GetAvailablePokemons();
+        Task<IEnumerable<AvailablePokemonDto>> GetAvailablePokemonsAsync();
 
-        Task<BuyResultDto> BuyPokemon(int pokemonCenterId, int userId);
+        Task<BuyResultDto> BuyPokemonAsync(int pokemonCenterId, int userId);
 
-        Task<PokeballDto> Pokeball(int userId);
+        Task<PokeballDto> BuyPokeballAsync(int userId);
     }
 }

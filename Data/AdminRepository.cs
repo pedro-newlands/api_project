@@ -11,11 +11,8 @@ namespace ProjetoPokeShop.Repositories
     {
         private readonly AppDbContext _context;
 
-        public AdminRepository(AppDbContext context)
-        {
-            _context = context;
-        }
-
+        public AdminRepository(AppDbContext context) => _context = context;
+    
         //user
         public async Task<IEnumerable<User>> GetUsersAsync()
         {
@@ -72,14 +69,14 @@ namespace ProjetoPokeShop.Repositories
             return await _context.Pokemons.Include(p => p.Owner).FirstOrDefaultAsync(p => p.Id == id);
         }
 
-        public async Task<Pokemon> CreatePokemonAsync(Pokemon pokemon)
+        public async Task<Pokemon?> CreatePokemonAsync(Pokemon pokemon)
         {
             _context.Pokemons.Add(pokemon);
             var createdPokemon = await GetPokemonByIdAsync(pokemon.Id);
             return createdPokemon;
         }
 
-        public async Task<Pokemon> UpdatePokemonAsync(Pokemon pokemon, UpdatePokemonDto dto)
+        public async Task<Pokemon?> UpdatePokemonAsync(Pokemon pokemon, UpdatePokemonDto dto)
         {
             pokemon.Name = dto.Name ?? pokemon.Name;
             pokemon.Type = dto.Type ?? pokemon.Type;
@@ -117,7 +114,7 @@ namespace ProjetoPokeShop.Repositories
         }
 
         //pokemonCenter
-        public async Task<PokemonCenter> GetPokemonCenterByIdAsync(int targetId)
+        public async Task<PokemonCenter?> GetPokemonCenterByIdAsync(int targetId)
         {
             return await _context.PokemonCenter.Include(pc => pc.Pokemon).FirstOrDefaultAsync(pc => pc.Id == targetId);
         }
@@ -127,7 +124,7 @@ namespace ProjetoPokeShop.Repositories
             return await _context.PokemonCenter.AnyAsync(pc => pc.PokemonId == pokemonId);
         }
 
-        public async Task<PokemonCenter> CreatePokemonCenterAsync(PokemonCenter center)
+        public async Task<PokemonCenter?> CreatePokemonCenterAsync(PokemonCenter center)
         {
             _context.PokemonCenter.Add(center);
             await _context.SaveChangesAsync();

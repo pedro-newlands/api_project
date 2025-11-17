@@ -11,6 +11,10 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)));
 
 builder.Services.AddScoped<AdminRepository>();
+builder.Services.AddScoped<CenterRepository>();
+builder.Services.AddScoped<LoginRepository>();
+builder.Services.AddScoped<StorageRepository>();
+
 builder.Services.AddScoped<IAdminService, AdminService>();
 builder.Services.AddScoped<ICenterService, CenterService>();
 builder.Services.AddScoped<ILoginService, LoginService>();

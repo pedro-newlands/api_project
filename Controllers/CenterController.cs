@@ -14,9 +14,9 @@ namespace ProjetoPokeShop.Controllers
         public CenterController(ICenterService centerService) => _centerService = centerService;
 
         [HttpGet("center")]
-        public async Task<IActionResult> GetAvailablePokemons()
+        public async Task<IActionResult> GetAvailablePokemonsAsync()
         {
-            var pokemonsForSale = await _centerService.GetAvailablePokemons();
+            var pokemonsForSale = await _centerService.GetAvailablePokemonsAsync();
 
             return Ok(pokemonsForSale);
         }
@@ -26,7 +26,7 @@ namespace ProjetoPokeShop.Controllers
         {
             try
             {
-                var r = await _centerService.BuyPokemon(dto.PokemonCenterId, dto.UserId);
+                var r = await _centerService.BuyPokemonAsync(dto.PokemonCenterId, dto.UserId);
 
                 return Ok(r);
             }
@@ -49,7 +49,7 @@ namespace ProjetoPokeShop.Controllers
         {
             try
             {
-                var r = await _centerService.Pokeball(userId);
+                var r = await _centerService.BuyPokeballAsync(userId);
 
                 return Ok(r);
             }

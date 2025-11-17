@@ -4,8 +4,8 @@ namespace ProjetoPokeShop.Services
 {
     public interface IStorageService
     {
-        Task<IEnumerable<EngagedPokemonDto>> Inventory(int userId);
+        Task<IEnumerable<EngagedPokemonDto>> GetInventoryAsync(int userId);
 
-        Task<SellResultDto> SellPokemon(int userId, int userPokemonId);
+        Task<SellResultDto> SellPokemonAsync(int userId, int userPokemonId);
     }
 }

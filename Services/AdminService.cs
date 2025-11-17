@@ -230,7 +230,7 @@ namespace ProjetoPokeShop.Services
             if (targetPokemon == null)
                 throw new KeyNotFoundException("Pokémon does not exist");
 
-            _repository.DeletePokemonAsync(targetPokemon);
+            await _repository.DeletePokemonAsync(targetPokemon);
 
             return new ResultDto<Pokemon>
             {
@@ -249,7 +249,7 @@ namespace ProjetoPokeShop.Services
             if (targetPokemonCenter == null)
                 throw new KeyNotFoundException("Pokémon does not exist in the store");
 
-            _repository.DeletePokemonCenterAsync(targetPokemonCenter);
+            await _repository.DeletePokemonCenterAsync(targetPokemonCenter);
 
             return new ResultDto<PokemonCenter>
             {
@@ -273,7 +273,7 @@ namespace ProjetoPokeShop.Services
             if (exists)
                 throw new InvalidOperationException("Pokémon is in Center already");
 
-            _repository.CreatePokemonCenterAsync(pokemonCenter);
+            await _repository.CreatePokemonCenterAsync(pokemonCenter);
 
             return new ResultDto<PokemonCenter>
             {

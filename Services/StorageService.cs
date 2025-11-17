@@ -18,43 +18,35 @@ namespace ProjetoPokeShop.Services
             _repository = repository;
         }
 
-        public async Task<IEnumerable<EngagedPokemonDto>> GetInventoryAsync(int userId)
+    public async Task<IEnumerable<EngagedPokemonDto>> GetInventoryAsync(int userId)
+    {
+        if (!await _repository.UserExistsByIdasync(userId))
+            throw new KeyNotFoundException("User does not exist");
+
+        if (!await _repository.UserPokemonExistsByUserIdAsync(userId))
+            throw new KeyNotFoundException("No inventory for this user");
+
+        var storage = await _repository.GetUserInventoryAsListAsync(userId);
+
+        var result = new List<EngagedPokemonDto>();
+
+        foreach (var i in storage)
         {
-            if (await _repository.UserExistsByIdasync(userId))
-                throw new KeyNotFoundException("User does not exist");
-
-            else if (!await _repository.UserPokemonExistsByUserIdAsync(userId))
-                throw new KeyNotFoundException("No inventory for this user");
-
-            var storage = await _repository.GetUserInventoryAsListAsync(userId);
-
-            IEnumerable<EngagedPokemonDto> formatedStorage = [];
-
-            foreach (var i in storage)
+            result.Add(new EngagedPokemonDto
             {
-                new EngagedPokemonDto
-                {
-                    UserPokemonId = i.Id,
+                UserPokemonId = i.Id,
+                Name = i.Pokemon.Name,
+                Nature = i.Pokemon.Nature,
+                Type = i.Pokemon.Type,
+                MarketValue = i.Pokemon.Value,
+                Rarity = i.Pokemon.Rarity,
+                AcquiredAt = i.AcquiredAt
+            });
+        }
 
-                    Name = i.Pokemon.Name,
-
-                    Nature = i.Pokemon.Nature,
-
-                    Type = i.Pokemon.Type,
-
-                    MarketValue = i.Pokemon.Value,
-
-                    Rarity = i.Pokemon.Rarity,
-
-                    AcquiredAt = i.AcquiredAt
-                };
+        return result;
+    }
                 
-                formatedStorage.Append(i);
-
-                return formatedStorage;
-            }
-            
-            
 
         public async Task<SellResultDto> SellPokemonAsync(int userId, int userPokemonId)
         {

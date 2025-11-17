@@ -18,7 +18,7 @@ namespace ProjetoPokeShop.Controllers
         {
             try
             {
-                var r = await _storageService.Inventory(id);
+                var r = await _storageService.GetInventoryAsync(id);
 
                 return Ok(r);
             }
@@ -37,7 +37,7 @@ namespace ProjetoPokeShop.Controllers
         {
             try
             {
-                var r = await _storageService.SellPokemon(dto.UserId, dto.UserPokemonId);
+                var r = await _storageService.SellPokemonAsync(dto.UserId, dto.UserPokemonId);
 
                 return Ok(r);
             }

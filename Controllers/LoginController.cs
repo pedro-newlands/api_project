@@ -20,7 +20,7 @@ namespace ProjetoPokeShop.Controllers
         {
             try
             {
-                var r = await _loginService.Login(dto.UserName, dto.Password);
+                var r = await _loginService.LoginAsync(dto.UserName, dto.Password);
 
                 return Ok(r);
             }

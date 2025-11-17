@@ -24,6 +24,8 @@ namespace ProjetoPokeShop.Services
                 {
                     UserName = username,
                     PasswordHash = password,
+                    Coins = 100,
+                    FirstLogin = true
                 };
 
                 await _repository.CreateUserAsync(user);
@@ -36,7 +38,7 @@ namespace ProjetoPokeShop.Services
             {
                 user.FirstLogin = true;
                 user.Coins += 100;
-                await _context.SaveChangesAsync();
+                await _repository.UpdateUserFirstLogin(user);
             }
             return user;
         }
