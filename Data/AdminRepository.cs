@@ -72,6 +72,7 @@ namespace ProjetoPokeShop.Repositories
         public async Task<Pokemon?> CreatePokemonAsync(Pokemon pokemon)
         {
             _context.Pokemons.Add(pokemon);
+            await _context.SaveChangesAsync();
             var createdPokemon = await GetPokemonByIdAsync(pokemon.Id);
             return createdPokemon;
         }
@@ -105,6 +106,7 @@ namespace ProjetoPokeShop.Repositories
         public async Task CreateUserPokemonAsync(UserPokemon userPokemon)
         {
             _context.UserPokemons.Add(userPokemon);
+            await _context.SaveChangesAsync();
         }
 
         public async Task DeleteUserPokemonAsync(UserPokemon userPokemon)

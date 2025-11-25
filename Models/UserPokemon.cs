@@ -10,7 +10,7 @@ namespace ProjetoPokeShop.Models
 
         public User User { get; set; }
 
-        public DateTime AcquiredAt { get; set; } = DateTime.UtcNow;
+        public DateTime AcquiredAt { get; set; } = DateTime.Now;
 
         public int PokemonId { get; set; } // FK
         public Pokemon Pokemon { get; set; }

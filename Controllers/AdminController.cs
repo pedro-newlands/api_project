@@ -51,7 +51,7 @@ namespace api_project.Controllers
             {
                 var newUser = await _adminService.CreateUserAsync(superPassword, dto);
 
-                return CreatedAtAction(nameof(GetUserByIdAsync), new { id = newUser.TargetEntity }, newUser);
+                return Ok(newUser);
             }
             catch (InvalidOperationException ex)
             {
@@ -136,8 +136,8 @@ namespace api_project.Controllers
             {
                 var newPokemon = await _adminService.CreatePokemonAsync(superPassword, dto);
 
-                return CreatedAtAction
-                    (nameof(GetPokemonByIdAsync), new { id = newPokemon.TargetEntity.Id }, newPokemon);
+                return Ok (newPokemon);
+                    
             }
             catch (InvalidOperationException ex)
             {

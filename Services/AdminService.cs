@@ -149,10 +149,10 @@ namespace ProjetoPokeShop.Services
                 Type = dto.Type,
                 Nature = dto.Nature,
                 Rarity = dto.Rarity,
-                Value = dto.Value,
+                Value = Pokemon.GetDefaultValue(dto.Rarity),
                 OwnerId = dto.OwnerId
             };
-            await _repository.CreatePokemonAsync(pokemon);
+            var newPokemon = await _repository.CreatePokemonAsync(pokemon);
 
             if (dto.OwnerId is not null)
             {
@@ -169,8 +169,6 @@ namespace ProjetoPokeShop.Services
                 PokemonId = pokemon.Id
             };
             await _repository.CreatePokemonCenterAsync(center);
-
-            var newPokemon = await _repository.GetPokemonByIdAsync(pokemon.Id);
 
             return new ResultDto<Pokemon>
             {
@@ -202,7 +200,6 @@ namespace ProjetoPokeShop.Services
                     {
                         UserId = dto.OwnerId.Value,
                         PokemonId = pokemon.Id,
-                        AcquiredAt = DateTime.Now
                     });
                 }
             }

@@ -2,5 +2,7 @@
 
 ## Futuras implementações
 - Hash de senha no LoginService para produção
+- Validação
+- Front-end
 - Tratamento de exceções mais detalhado dentro das transações, caso desejado
 - Outros tipos de pokebolas
