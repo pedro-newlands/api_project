@@ -25,8 +25,8 @@ namespace ProjetoPokeShop.Migrations
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     PasswordHash = table.Column<string>(type: "longtext", nullable: true)
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    Coins = table.Column<int>(type: "int", nullable: false),
-                    FirstLogin = table.Column<bool>(type: "tinyint(1)", nullable: false)
+                    Coins = table.Column<int>(type: "int", nullable: false, defaultValue: 0),
+                    FirstLogin = table.Column<bool>(type: "tinyint(1)", nullable: false, defaultValue: false)
                 },
                 constraints: table =>
                 {

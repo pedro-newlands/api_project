@@ -4,13 +4,13 @@ class PopulatePokeShopScript
 {
     static void Main()
     {
-        string[] names = new string[] { "Pikachu", "Bicharp", "Charizard", "Mewtwo" };
+        string[] names = new string[] { "Pikachu", "Caterpie", "Emolga", "Sentret", "Mareep", "Magikarp", "Ponyta", "Vulpix", "Riolu", "Dratini", "Dragonite", "Bisharp", "Charizard", "Mewtwo" };
 
-        string[] natures = new string[] { "Modest", "Adamant", "Timid", "Quiet" };
+        string[] natures = new string[] { "Modest", "Adamant", "Timid", "Quiet", "Bashful", "Lonely", "Hard", "Brave", "Docile", "Lax", "Serious", "Gentle", "Calm", "Bold" };
 
-        string[] types = new string[] { "Electric", "Dark-Steel", "Fire-Fly", "Psychic" };
+        string[] types = new string[] { "Electric", "Bug", "Electric-Flying", "Normal", "Electric", "Water", "Fire", "Fire", "Fighting", "Dragon", "Dragon-Flying", "Dark-Steel", "Fire-Flying", "Psychic" };
 
-        PokemonRarity[] rarities = { PokemonRarity.Common, PokemonRarity.Uncommon, PokemonRarity.Rare, PokemonRarity.Legendary };
+        PokemonRarity[] rarities = { PokemonRarity.Common, PokemonRarity.Common, PokemonRarity.Common, PokemonRarity.Common, PokemonRarity.Common, PokemonRarity.Common, PokemonRarity.Uncommon, PokemonRarity.Uncommon, PokemonRarity.Uncommon, PokemonRarity.Uncommon, PokemonRarity.Rare, PokemonRarity.Rare, PokemonRarity.Rare, PokemonRarity.Legendary };
 
         var rarityValues = new Dictionary<PokemonRarity, int>
         {
@@ -24,10 +24,12 @@ class PopulatePokeShopScript
         // Dictionary<string, int> rarityValues = new () { };
         var utf8NoBom = new UTF8Encoding(false);
         // using StreamWriter sw = new StreamWriter("PopulatePokeShop.sql"); //versão morder * C8.0 +
-        using (StreamWriter sw = new StreamWriter("PopulatePokeShop_Updated.sql", false, utf8NoBom)) //versão clássica
+        using (StreamWriter sw = new StreamWriter("PopulatePokeShop.sql", false, utf8NoBom)) //versão clássica
         {
+            sw.WriteLine("USE PokeShopDb;");
+            
             sw.WriteLine("-- Users");
-
+            sw.WriteLine("INSERT INTO Users (UserName, PasswordHash) VALUES ('admin', '1010');");
             sw.WriteLine("INSERT INTO Users (UserName, PasswordHash, Coins, FirstLogin) VALUES ('admin', '1010'),('Ash','1234',100,1),('Misty','1234',100,1),('Brock','1234',100,1);");
             sw.WriteLine();
 
