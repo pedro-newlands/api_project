@@ -30,7 +30,7 @@ class PopulatePokeShopScript
             
             sw.WriteLine("-- Users");
             sw.WriteLine("INSERT INTO Users (UserName, PasswordHash) VALUES ('admin', '1010');");
-            sw.WriteLine("INSERT INTO Users (UserName, PasswordHash, Coins, FirstLogin) VALUES ('admin', '1010'),('Ash','1234',100,1),('Misty','1234',100,1),('Brock','1234',100,1);");
+            sw.WriteLine("INSERT INTO Users (UserName, PasswordHash, Coins, FirstLogin) VALUES ('Ash','1234',100,1),('Misty','1234',100,1),('Brock','1234',100,1);");
             sw.WriteLine();
 
             sw.WriteLine("-- Pokémons");

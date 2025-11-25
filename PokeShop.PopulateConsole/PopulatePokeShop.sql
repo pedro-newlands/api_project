@@ -1,7 +1,6 @@
 USE PokeShopDb;
 -- Users
 INSERT INTO Users (UserName, PasswordHash) VALUES ('admin', '1010');
-
 INSERT INTO Users (UserName, PasswordHash, Coins, FirstLogin) VALUES ('Ash','1234',100,1),('Misty','1234',100,1),('Brock','1234',100,1);
 
 -- Pokémons

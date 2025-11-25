@@ -4,4 +4,3 @@
 - Hash de senha no LoginService para produção
 - Tratamento de exceções mais detalhado dentro das transações, caso desejado
 - Outros tipos de pokebolas
-- **Docker**
