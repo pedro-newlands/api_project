@@ -18,6 +18,13 @@ INSERT INTO Pokemons (Name, Nature, Type, Value, Rarity, OwnerId) VALUES ('Drago
 INSERT INTO Pokemons (Name, Nature, Type, Value, Rarity, OwnerId) VALUES ('Bisharp', 'Gentle', 'Dark-Steel', 60, 'Rare', NULL);
 INSERT INTO Pokemons (Name, Nature, Type, Value, Rarity, OwnerId) VALUES ('Charizard', 'Calm', 'Fire-Flying', 60, 'Rare', NULL);
 INSERT INTO Pokemons (Name, Nature, Type, Value, Rarity, OwnerId) VALUES ('Mewtwo', 'Bold', 'Psychic', 80, 'Legendary', NULL);
+INSERT INTO Pokemons (Name, Nature, Type, Value, Rarity, OwnerId) VALUES ('Rayquaza', 'Timid', 'Dragon-Flying', 80, 'Legendary', NULL);
+INSERT INTO Pokemons (Name, Nature, Type, Value, Rarity, OwnerId) VALUES ('Kyogre', 'Adamant', 'Water', 80, 'Legendary', NULL);
+INSERT INTO Pokemons (Name, Nature, Type, Value, Rarity, OwnerId) VALUES ('Groudon', 'Quiet', 'Ground', 80, 'Legendary', NULL);
+INSERT INTO Pokemons (Name, Nature, Type, Value, Rarity, OwnerId) VALUES ('Articuno', 'Modest', 'Ice-Flying', 80, 'Legendary', NULL);
+INSERT INTO Pokemons (Name, Nature, Type, Value, Rarity, OwnerId) VALUES ('Mew', 'Lax', 'Psychic', 80, 'Legendary', NULL);
+INSERT INTO Pokemons (Name, Nature, Type, Value, Rarity, OwnerId) VALUES ('Kartana', 'Adamant', 'Grass-Steel', 80, 'Legendary', NULL);
+INSERT INTO Pokemons (Name, Nature, Type, Value, Rarity, OwnerId) VALUES ('Arceus', 'Brave', 'Normal', 80, 'Legendary', NULL);
 
 -- Pokémon Center
 INSERT INTO PokemonCenter (PokemonId) VALUES (1);
@@ -34,5 +41,12 @@ INSERT INTO PokemonCenter (PokemonId) VALUES (11);
 INSERT INTO PokemonCenter (PokemonId) VALUES (12);
 INSERT INTO PokemonCenter (PokemonId) VALUES (13);
 INSERT INTO PokemonCenter (PokemonId) VALUES (14);
+INSERT INTO PokemonCenter (PokemonId) VALUES (15);
+INSERT INTO PokemonCenter (PokemonId) VALUES (16);
+INSERT INTO PokemonCenter (PokemonId) VALUES (17);
+INSERT INTO PokemonCenter (PokemonId) VALUES (18);
+INSERT INTO PokemonCenter (PokemonId) VALUES (19);
+INSERT INTO PokemonCenter (PokemonId) VALUES (20);
+INSERT INTO PokemonCenter (PokemonId) VALUES (21);
 
 -- Script generated

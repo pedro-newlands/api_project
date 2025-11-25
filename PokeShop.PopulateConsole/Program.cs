@@ -4,13 +4,13 @@ class PopulatePokeShopScript
 {
     static void Main()
     {
-        string[] names = new string[] { "Pikachu", "Caterpie", "Emolga", "Sentret", "Mareep", "Magikarp", "Ponyta", "Vulpix", "Riolu", "Dratini", "Dragonite", "Bisharp", "Charizard", "Mewtwo" };
+        string[] names = new string[] { "Pikachu", "Caterpie", "Emolga", "Sentret", "Mareep", "Magikarp", "Ponyta", "Vulpix", "Riolu", "Dratini", "Dragonite", "Bisharp", "Charizard", "Mewtwo", "Rayquaza", "Kyogre", "Groudon", "Articuno", "Mew", "Kartana", "Arceus" };
 
-        string[] natures = new string[] { "Modest", "Adamant", "Timid", "Quiet", "Bashful", "Lonely", "Hard", "Brave", "Docile", "Lax", "Serious", "Gentle", "Calm", "Bold" };
+        string[] natures = new string[] { "Modest", "Adamant", "Timid", "Quiet", "Bashful", "Lonely", "Hard", "Brave", "Docile", "Lax", "Serious", "Gentle", "Calm", "Bold", "Timid", "Adamant", "Quiet", "Modest", "Lax", "Adamant", "Brave" };
 
-        string[] types = new string[] { "Electric", "Bug", "Electric-Flying", "Normal", "Electric", "Water", "Fire", "Fire", "Fighting", "Dragon", "Dragon-Flying", "Dark-Steel", "Fire-Flying", "Psychic" };
+        string[] types = new string[] { "Electric", "Bug", "Electric-Flying", "Normal", "Electric", "Water", "Fire", "Fire", "Fighting", "Dragon", "Dragon-Flying", "Dark-Steel", "Fire-Flying", "Psychic", "Dragon-Flying", "Water", "Ground", "Ice-Flying", "Psychic", "Grass-Steel", "Normal" };
 
-        PokemonRarity[] rarities = { PokemonRarity.Common, PokemonRarity.Common, PokemonRarity.Common, PokemonRarity.Common, PokemonRarity.Common, PokemonRarity.Common, PokemonRarity.Uncommon, PokemonRarity.Uncommon, PokemonRarity.Uncommon, PokemonRarity.Uncommon, PokemonRarity.Rare, PokemonRarity.Rare, PokemonRarity.Rare, PokemonRarity.Legendary };
+        PokemonRarity[] rarities = { PokemonRarity.Common, PokemonRarity.Common, PokemonRarity.Common, PokemonRarity.Common, PokemonRarity.Common, PokemonRarity.Common, PokemonRarity.Uncommon, PokemonRarity.Uncommon, PokemonRarity.Uncommon, PokemonRarity.Uncommon, PokemonRarity.Rare, PokemonRarity.Rare, PokemonRarity.Rare, PokemonRarity.Legendary, PokemonRarity.Legendary, PokemonRarity.Legendary, PokemonRarity.Legendary, PokemonRarity.Legendary, PokemonRarity.Legendary, PokemonRarity.Legendary, PokemonRarity.Legendary };
 
         var rarityValues = new Dictionary<PokemonRarity, int>
         {
