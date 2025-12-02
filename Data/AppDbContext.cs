@@ -21,8 +21,9 @@ namespace ProjetoPokeShop.Data
 
             modelBuilder.Entity<UserPokemon>()
                 .HasOne(up => up.User)
-                .WithMany(u => u.Pokeball)
-                .HasForeignKey(p => p.UserId);
+                .WithMany()
+                .HasForeignKey(p => p.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<UserPokemon>()
                 .HasOne(p => p.Pokemon)
@@ -35,6 +36,16 @@ namespace ProjetoPokeShop.Data
                 .HasForeignKey(p => p.OwnerId)
                 .OnDelete(DeleteBehavior.SetNull);
 
+            modelBuilder.Entity<PokemonCenter>()
+                .HasOne(pc => pc.Pokemon)
+                .WithMany()
+                .HasForeignKey(pc => pc.PokemonId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<Pokemon>()
+                .Property(p => p.Rarity)
+                .HasConversion<string>();
+                
             //indices
             modelBuilder.Entity<User>()
                 .HasIndex(u => u.UserName)

@@ -1,0 +1,58 @@
+using Microsoft.AspNetCore.Mvc;
+using ProjetoPokeShop.DTOs;
+using ProjetoPokeShop.Services;
+
+namespace ProjetoPokeShop.Controllers
+{
+    [ApiController]
+    [Route("api/[controller]")]
+
+    public class StorageController : ControllerBase
+    {
+        readonly IStorageService _storageService;
+
+        public StorageController(IStorageService storageService) => _storageService = storageService;
+
+        [HttpGet("inventory/{id}")]
+        public async Task<IActionResult> Inventory([FromRoute] int id)
+        {
+            try
+            {
+                var r = await _storageService.GetInventoryAsync(id);
+
+                return Ok(r);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        [HttpPost("sell-pokemon")]
+        public async Task<ActionResult<SellResultDto>> SellPokemon([FromBody] SellRequestDto dto)
+        {
+            try
+            {
+                var r = await _storageService.SellPokemonAsync(dto.UserId, dto.UserPokemonId);
+
+                return Ok(r);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new { message = ex.Message });
+            }
+            catch (InvalidOperationException ex)
+            {
+                return Conflict(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+    }
+}
