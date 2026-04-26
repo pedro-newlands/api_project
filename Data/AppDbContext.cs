@@ -35,18 +35,18 @@ namespace ProjetoPokeShop.Data
 
             modelBuilder.Entity<Pokemon>()
                 .HasOne(p => p.Owner)
-                .WithMany(u => u.Pokemons)
+                .WithMany()
                 .HasForeignKey(p => p.OwnerId)
                 .OnDelete(DeleteBehavior.SetNull);
 
             modelBuilder.Entity<Pokemon>()
                 .HasOne(p => p.Rarity)
-                .WithMany(r => r.Pokemons)
+                .WithMany()
                 .HasForeignKey(p => p.RarityId);
 
             modelBuilder.Entity<Pokemon>()
                 .HasMany(p => p.Elements)
-                .WithMany(t => t.Pokemons)
+                .WithMany()
                 .UsingEntity(j => j.ToTable("PokemonElement"));
             
             modelBuilder.Entity<PokemonCenter>()

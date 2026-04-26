@@ -8,6 +8,5 @@ namespace ProjetoPokeShop.Models
 
         public Elements Name {get; set; }
 
-        public ICollection<Pokemon> Pokemons {get; set; } = new List<Pokemon>();
     }
 }

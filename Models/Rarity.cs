@@ -10,6 +10,5 @@ namespace ProjetoPokeShop.Models
 
         public int Price {get; set; }
 
-        public ICollection<Pokemon> Pokemons {get; set; } = new List<Pokemon>();
     }
 }

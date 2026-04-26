@@ -16,22 +16,12 @@ namespace ProjetoPokeShop.Repositories
         //user
         public async Task<IEnumerable<User>> GetUsersAsync()
         {
-            return await _context.Users
-                .Include(u => u.Pokemons)
-                    .ThenInclude(p => p.Elements)
-                .Include(u => u.Pokemons)
-                    .ThenInclude(p => p.Rarity)
-                .ToListAsync();
+            return await _context.Users.ToListAsync();
         }
 
         public async Task<User?> GetUserByIdAsync(int id)
         {
-            return await _context.Users
-                .Include(u => u.Pokemons)
-                    .ThenInclude(p => p.Elements)
-                .Include(u => u.Pokemons)
-                    .ThenInclude(p => p.Rarity)
-                .FirstOrDefaultAsync(u => u.Id == id);
+            return await _context.Users.FirstOrDefaultAsync(u => u.Id == id);
         }
 
         public async Task<bool> UserExistsByIdAsync(int id)

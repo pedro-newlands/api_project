@@ -24,12 +24,12 @@ namespace ProjetoPokeShop.Migrations
                     b.Property<int>("ElementsId")
                         .HasColumnType("int");
 
-                    b.Property<int>("PokemonsId")
+                    b.Property<int>("PokemonId")
                         .HasColumnType("int");
 
-                    b.HasKey("ElementsId", "PokemonsId");
+                    b.HasKey("ElementsId", "PokemonId");
 
-                    b.HasIndex("PokemonsId");
+                    b.HasIndex("PokemonId");
 
                     b.ToTable("PokemonElement", (string)null);
                 });
@@ -159,7 +159,8 @@ namespace ProjetoPokeShop.Migrations
 
                     b.HasIndex("AcquiredAt");
 
-                    b.HasIndex("PokemonId");
+                    b.HasIndex("PokemonId")
+                        .IsUnique();
 
                     b.HasIndex("UserId");
 
@@ -176,7 +177,7 @@ namespace ProjetoPokeShop.Migrations
 
                     b.HasOne("ProjetoPokeShop.Models.Pokemon", null)
                         .WithMany()
-                        .HasForeignKey("PokemonsId")
+                        .HasForeignKey("PokemonId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
@@ -184,12 +185,12 @@ namespace ProjetoPokeShop.Migrations
             modelBuilder.Entity("ProjetoPokeShop.Models.Pokemon", b =>
                 {
                     b.HasOne("ProjetoPokeShop.Models.User", "Owner")
-                        .WithMany("Pokemons")
+                        .WithMany()
                         .HasForeignKey("OwnerId")
                         .OnDelete(DeleteBehavior.SetNull);
 
                     b.HasOne("ProjetoPokeShop.Models.Rarity", "Rarity")
-                        .WithMany("Pokemons")
+                        .WithMany()
                         .HasForeignKey("RarityId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -227,16 +228,6 @@ namespace ProjetoPokeShop.Migrations
                     b.Navigation("Pokemon");
 
                     b.Navigation("User");
-                });
-
-            modelBuilder.Entity("ProjetoPokeShop.Models.Rarity", b =>
-                {
-                    b.Navigation("Pokemons");
-                });
-
-            modelBuilder.Entity("ProjetoPokeShop.Models.User", b =>
-                {
-                    b.Navigation("Pokemons");
                 });
 #pragma warning restore 612, 618
         }

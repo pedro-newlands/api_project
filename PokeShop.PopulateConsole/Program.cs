@@ -60,8 +60,8 @@ class PopulatePokeShopScript
                 foreach (var type in pokemonTypes[i])
                 {
                     int elementId = (int)type + 1;
-                    // Nomes confirmados: ElementsId e PokemonsId
-                    sw.WriteLine($"INSERT INTO PokemonElement (ElementsId, PokemonsId) VALUES ({elementId}, {pId});");
+                    // Nomes confirmados: ElementsId e PokemonId
+                    sw.WriteLine($"INSERT INTO PokemonElement (ElementsId, PokemonId) VALUES ({elementId}, {pId});");
                 }
 
                 // PokemonCenter

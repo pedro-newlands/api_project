@@ -121,11 +121,11 @@ namespace ProjetoPokeShop.Migrations
                 columns: table => new
                 {
                     ElementsId = table.Column<int>(type: "int", nullable: false),
-                    PokemonsId = table.Column<int>(type: "int", nullable: false)
+                    PokemonId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_PokemonElement", x => new { x.ElementsId, x.PokemonsId });
+                    table.PrimaryKey("PK_PokemonElement", x => new { x.ElementsId, x.PokemonId });
                     table.ForeignKey(
                         name: "FK_PokemonElement_Elements_ElementsId",
                         column: x => x.ElementsId,
@@ -133,8 +133,8 @@ namespace ProjetoPokeShop.Migrations
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_PokemonElement_Pokemons_PokemonsId",
-                        column: x => x.PokemonsId,
+                        name: "FK_PokemonElement_Pokemons_PokemonId",
+                        column: x => x.PokemonId,
                         principalTable: "Pokemons",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -175,9 +175,9 @@ namespace ProjetoPokeShop.Migrations
                 column: "PokemonId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_PokemonElement_PokemonsId",
+                name: "IX_PokemonElement_PokemonId",
                 table: "PokemonElement",
-                column: "PokemonsId");
+                column: "PokemonId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Pokemons_OwnerId",
@@ -197,7 +197,8 @@ namespace ProjetoPokeShop.Migrations
             migrationBuilder.CreateIndex(
                 name: "IX_UserPokemons_PokemonId",
                 table: "UserPokemons",
-                column: "PokemonId");
+                column: "PokemonId",
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_UserPokemons_UserId",
