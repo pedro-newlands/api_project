@@ -17,13 +17,21 @@ namespace ProjetoPokeShop.Repositories
         {
             return await _context.UserPokemons
                 .Include(up => up.Pokemon)
+                    .ThenInclude(p => p.Elements)
+                .Include(up => up.Pokemon)
+                    .ThenInclude(p => p.Rarity)
                 .Where(up => up.UserId == userId)
                 .ToListAsync();
         }
 
         public async Task<UserPokemon?> GetUserPokemonById(int userPokemonId)
         {
-            return await _context.UserPokemons.Include(up => up.Pokemon).FirstOrDefaultAsync(up => up.Id == userPokemonId);
+            return await _context.UserPokemons
+                .Include(up => up.Pokemon)
+                    .ThenInclude(p => p.Elements)
+                .Include(up => up.Pokemon)
+                    .ThenInclude(p => p.Rarity)
+                .FirstOrDefaultAsync(up => up.Id == userPokemonId);
         }
 
         public async Task<User?> GetUserById(int userId)
@@ -44,7 +52,7 @@ namespace ProjetoPokeShop.Repositories
         public async Task SellUserPokemonAsync(UserPokemon userPokemon, User user)
         {
             using var transaction = await _context.Database.BeginTransactionAsync();
-            user.Coins -= userPokemon.Pokemon.Value;
+            user.Coins += userPokemon.Pokemon.Rarity.Price;
             userPokemon.Pokemon.OwnerId = null;
 
             _context.UserPokemons.Remove(userPokemon);

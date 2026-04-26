@@ -4,7 +4,7 @@ using ProjetoPokeShop.DTOs.Entity;
 using ProjetoPokeShop.Models;
 using ProjetoPokeShop.Services;
 
-namespace api_project.Controllers
+namespace ProjetoPokeShop.Controllers
 
 {
     [ApiController]

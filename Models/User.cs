@@ -14,7 +14,6 @@ namespace ProjetoPokeShop.Models
 
         public bool FirstLogin { get; set; } = false;
 
-        // public ICollection<UserPokemon> Pokeball { get; set; } = new List<UserPokemon>(); --> redundante
-
+        public ICollection<Pokemon> Pokemons { get; set; } = new List<Pokemon>();
     }
 }

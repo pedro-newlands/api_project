@@ -19,6 +19,36 @@ namespace ProjetoPokeShop.Migrations
                 .HasAnnotation("ProductVersion", "7.0.7")
                 .HasAnnotation("Relational:MaxIdentifierLength", 64);
 
+            modelBuilder.Entity("ElementPokemon", b =>
+                {
+                    b.Property<int>("ElementsId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("PokemonsId")
+                        .HasColumnType("int");
+
+                    b.HasKey("ElementsId", "PokemonsId");
+
+                    b.HasIndex("PokemonsId");
+
+                    b.ToTable("PokemonElement", (string)null);
+                });
+
+            modelBuilder.Entity("ProjetoPokeShop.Models.Element", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Elements");
+                });
+
             modelBuilder.Entity("ProjetoPokeShop.Models.Pokemon", b =>
                 {
                     b.Property<int>("Id")
@@ -36,24 +66,14 @@ namespace ProjetoPokeShop.Migrations
                     b.Property<int?>("OwnerId")
                         .HasColumnType("int");
 
-                    b.Property<string>("Rarity")
-                        .IsRequired()
-                        .HasColumnType("varchar(255)");
-
-                    b.Property<string>("Type")
-                        .IsRequired()
-                        .HasColumnType("varchar(255)");
-
-                    b.Property<int>("Value")
+                    b.Property<int>("RarityId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
 
                     b.HasIndex("OwnerId");
 
-                    b.HasIndex("Rarity");
-
-                    b.HasIndex("Type");
+                    b.HasIndex("RarityId");
 
                     b.ToTable("Pokemons");
                 });
@@ -72,6 +92,24 @@ namespace ProjetoPokeShop.Migrations
                     b.HasIndex("PokemonId");
 
                     b.ToTable("PokemonCenter");
+                });
+
+            modelBuilder.Entity("ProjetoPokeShop.Models.Rarity", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<int>("Price")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Rarities");
                 });
 
             modelBuilder.Entity("ProjetoPokeShop.Models.User", b =>
@@ -119,6 +157,8 @@ namespace ProjetoPokeShop.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("AcquiredAt");
+
                     b.HasIndex("PokemonId");
 
                     b.HasIndex("UserId");
@@ -126,14 +166,37 @@ namespace ProjetoPokeShop.Migrations
                     b.ToTable("UserPokemons");
                 });
 
+            modelBuilder.Entity("ElementPokemon", b =>
+                {
+                    b.HasOne("ProjetoPokeShop.Models.Element", null)
+                        .WithMany()
+                        .HasForeignKey("ElementsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("ProjetoPokeShop.Models.Pokemon", null)
+                        .WithMany()
+                        .HasForeignKey("PokemonsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("ProjetoPokeShop.Models.Pokemon", b =>
                 {
                     b.HasOne("ProjetoPokeShop.Models.User", "Owner")
-                        .WithMany()
+                        .WithMany("Pokemons")
                         .HasForeignKey("OwnerId")
                         .OnDelete(DeleteBehavior.SetNull);
 
+                    b.HasOne("ProjetoPokeShop.Models.Rarity", "Rarity")
+                        .WithMany("Pokemons")
+                        .HasForeignKey("RarityId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.Navigation("Owner");
+
+                    b.Navigation("Rarity");
                 });
 
             modelBuilder.Entity("ProjetoPokeShop.Models.PokemonCenter", b =>
@@ -164,6 +227,16 @@ namespace ProjetoPokeShop.Migrations
                     b.Navigation("Pokemon");
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("ProjetoPokeShop.Models.Rarity", b =>
+                {
+                    b.Navigation("Pokemons");
+                });
+
+            modelBuilder.Entity("ProjetoPokeShop.Models.User", b =>
+                {
+                    b.Navigation("Pokemons");
                 });
 #pragma warning restore 612, 618
         }

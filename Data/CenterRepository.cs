@@ -20,24 +20,29 @@ namespace ProjetoPokeShop.Repositories
         {
             return await _context.PokemonCenter
                 .Include(pc => pc.Pokemon)
+                    .ThenInclude(p => p.Elements)
+                .Include(pc => pc.Pokemon)
+                    .ThenInclude(p => p.Rarity)
                 .Where(pc => pc.Pokemon.OwnerId == null)
                 .Select(pc => new AvailablePokemonDto
                 {
                     PokemonCenterId = pc.Id,
                     Name = pc.Pokemon.Name,
                     Nature = pc.Pokemon.Nature,
-                    Type = pc.Pokemon.Type,
-                    MarketValue = pc.Pokemon.Value,
-                    Rarity = pc.Pokemon.Rarity
+                    Elements = pc.Pokemon.Elements.Select(e => e.Name).ToList(),
+                    MarketValue = pc.Pokemon.Rarity.Price,
+                    Rarity = pc.Pokemon.Rarity.Name
                 })
                 .AsNoTracking()
                 .ToListAsync();
         }
 
-        public async Task<List<Pokemon>> GetAvailablePokemonsByRarityAsync(PokemonRarity rarity)
+        public async Task<List<Pokemon>> GetAvailablePokemonsByRarityAsync(Rarities rarity)
         {
             return await _context.Pokemons
-                .Where(p => p.Rarity == rarity && p.OwnerId == null)
+                .Include(p => p.Rarity)     
+                .Include(p => p.Elements) 
+                .Where(p => p.Rarity.Name == rarity && p.OwnerId == null)
                 .ToListAsync();
         }
 
@@ -45,6 +50,9 @@ namespace ProjetoPokeShop.Repositories
         {
             return await _context.PokemonCenter
                 .Include(pc => pc.Pokemon)
+                    .ThenInclude(p => p.Elements)
+                .Include(pc => pc.Pokemon)
+                    .ThenInclude(p => p.Rarity)
                 .FirstOrDefaultAsync(pc => pc.Id == pokemonCenterId);
         }
 
@@ -52,7 +60,7 @@ namespace ProjetoPokeShop.Repositories
         {
             using var transaction = await _context.Database.BeginTransactionAsync();
 
-            user.Coins -= pokemonCenter.Pokemon.Value;
+            user.Coins -= pokemonCenter.Pokemon.Rarity.Price;
 
             pokemonCenter.Pokemon.OwnerId = user.Id;
 

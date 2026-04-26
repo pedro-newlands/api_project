@@ -16,12 +16,22 @@ namespace ProjetoPokeShop.Repositories
         //user
         public async Task<IEnumerable<User>> GetUsersAsync()
         {
-            return await _context.Users.ToListAsync();
+            return await _context.Users
+                .Include(u => u.Pokemons)
+                    .ThenInclude(p => p.Elements)
+                .Include(u => u.Pokemons)
+                    .ThenInclude(p => p.Rarity)
+                .ToListAsync();
         }
 
         public async Task<User?> GetUserByIdAsync(int id)
         {
-            return await _context.Users.FindAsync(id);
+            return await _context.Users
+                .Include(u => u.Pokemons)
+                    .ThenInclude(p => p.Elements)
+                .Include(u => u.Pokemons)
+                    .ThenInclude(p => p.Rarity)
+                .FirstOrDefaultAsync(u => u.Id == id);
         }
 
         public async Task<bool> UserExistsByIdAsync(int id)
@@ -61,12 +71,21 @@ namespace ProjetoPokeShop.Repositories
         //pokemon
         public async Task<IEnumerable<Pokemon>> GetPokemonsAsync()
         {
-            return await _context.Pokemons.Include(p => p.Owner).ToListAsync();
+            return await _context.Pokemons
+                .Include(p => p.Elements)
+                .Include(p => p.Rarity)
+                .Include(p => p.Owner)
+                .ToListAsync();
         }
 
         public async Task<Pokemon?> GetPokemonByIdAsync(int id)
         {
-            return await _context.Pokemons.Include(p => p.Owner).FirstOrDefaultAsync(p => p.Id == id);
+            return await _context.Pokemons
+                // .AsNoTracking()  Melhora a performance, pois o EF não precisa monitorar mudanças nesse objeto
+                .Include(p => p.Owner)
+                .Include(p => p.Elements)
+                .Include(p => p.Rarity)
+                .FirstOrDefaultAsync(p => p.Id == id);
         }
 
         public async Task<Pokemon?> CreatePokemonAsync(Pokemon pokemon)
@@ -77,18 +96,36 @@ namespace ProjetoPokeShop.Repositories
             return createdPokemon;
         }
 
+        public async Task<List<Element>> GetElementsByNames(List<Elements> elementsNames)
+        {
+            var elements = await _context.Elements
+                .Where(e => elementsNames.Contains(e.Name))
+                .ToListAsync();
+            
+            return elements;
+        }
+
         public async Task<Pokemon?> UpdatePokemonAsync(Pokemon pokemon, UpdatePokemonDto dto)
         {
             pokemon.Name = dto.Name ?? pokemon.Name;
-            pokemon.Type = dto.Type ?? pokemon.Type;
             pokemon.Nature = dto.Nature ?? pokemon.Nature;
-            pokemon.Rarity = dto.Rarity ?? pokemon.Rarity;
-            pokemon.Value = dto.Value ?? pokemon.Value;
+            pokemon.RarityId = dto.RarityId ?? pokemon.RarityId;
             pokemon.OwnerId = dto.OwnerId;
 
+            if (dto.Elements != null)
+            {
+                var newElements = await GetElementsByNames(dto.Elements);
+                
+                pokemon.Elements.Clear(); 
+                foreach (var element in newElements)
+                {
+                    pokemon.Elements.Add(element);
+                }
+            }
+
             await _context.SaveChangesAsync();
-            var updatedPokemon = await GetPokemonByIdAsync(pokemon.Id);
-            return updatedPokemon;
+            
+            return await GetPokemonByIdAsync(pokemon.Id);
         }
 
         public async Task DeletePokemonAsync(Pokemon pokemon)
@@ -118,7 +155,12 @@ namespace ProjetoPokeShop.Repositories
         //pokemonCenter
         public async Task<PokemonCenter?> GetPokemonCenterByIdAsync(int targetId)
         {
-            return await _context.PokemonCenter.Include(pc => pc.Pokemon).FirstOrDefaultAsync(pc => pc.Id == targetId);
+            return await _context.PokemonCenter
+                .Include(pc => pc.Pokemon)
+                    .ThenInclude(p => p.Elements)
+                .Include(pc => pc.Pokemon)
+                    .ThenInclude(p => p.Rarity)
+                .FirstOrDefaultAsync(pc => pc.Id == targetId);
         }
 
         public async Task<bool> PokemonCenterExistsByPokemonId(int pokemonId)

@@ -27,20 +27,22 @@ namespace ProjetoPokeShop.Services
             var user = await _repository.GetUserByIdAsync(userId)
                 ?? throw new KeyNotFoundException("User not found");
 
-            if (user.Coins < outPokemon.Pokemon.Value)
+            if (user.Coins < outPokemon.Pokemon.Rarity.Price)
                 throw new InvalidOperationException("Not enough coins");
 
             await _repository.BuyPokemonAsync(outPokemon, user);
+
+            var value = outPokemon.Pokemon.Rarity.Price;
 
             return new BuyResultDto
             {
                 OwnerId = user.Id,
                 PokemonName = outPokemon.Pokemon.Name,
                 Nature = outPokemon.Pokemon.Nature,
-                Type = outPokemon.Pokemon.Type,
-                Rarity = outPokemon.Pokemon.Rarity,
-                PokemonMarketValue = outPokemon.Pokemon.Value,
-                CoinsAdjustment = $"- {outPokemon.Pokemon.Value:C0}"
+                Elements = outPokemon.Pokemon.Elements.Select(e => e.Name).ToList(),
+                Rarity = outPokemon.Pokemon.Rarity.Name,
+                MarketValue = outPokemon.Pokemon.Rarity.Price,
+                CoinsAdjustment = $"-{outPokemon.Pokemon.Rarity.Price:C0}"
             };
         }
 
@@ -71,22 +73,22 @@ namespace ProjetoPokeShop.Services
                 Rarity = rarity,
                 PokemonName = randomPokemon.Name,
                 Nature = randomPokemon.Nature,
-                Type = randomPokemon.Type,
-                PokemonMarketValue = randomPokemon.Value,
+                Elements = randomPokemon.Elements.Select(e => e.Name).ToList(),
+                MarketValue = randomPokemon.Rarity.Price,
                 OwnerId = user.Id,
                 CoinsAdjustment = $"- {pokeballCost}"
             };
         }
 
-        private PokemonRarity RollRarity()
+        private Rarities RollRarity()
         {
             var random = _rng.Next(100);
             return random switch
             {
-                < 45 => PokemonRarity.Common,
-                < 75 => PokemonRarity.Uncommon,
-                < 95 => PokemonRarity.Rare,
-                _ => PokemonRarity.Legendary
+                < 45 => Rarities.Common,
+                < 75 => Rarities.Uncommon,
+                < 95 => Rarities.Rare,
+                _ => Rarities.Legendary
             };
         }
     }

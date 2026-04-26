@@ -30,17 +30,17 @@ namespace ProjetoPokeShop.Services
 
         var result = new List<EngagedPokemonDto>();
 
-        foreach (var i in storage)
+        foreach (var userPokemon in storage)
         {
             result.Add(new EngagedPokemonDto
             {
-                UserPokemonId = i.Id,
-                Name = i.Pokemon.Name,
-                Nature = i.Pokemon.Nature,
-                Type = i.Pokemon.Type,
-                MarketValue = i.Pokemon.Value,
-                Rarity = i.Pokemon.Rarity,
-                AcquiredAt = i.AcquiredAt
+                UserPokemonId = userPokemon.Id,
+                Name = userPokemon.Pokemon.Name,
+                Nature = userPokemon.Pokemon.Nature,
+                Elements = userPokemon.Pokemon.Elements.Select(e => e.Name).ToList(),
+                MarketValue = userPokemon.Pokemon.Rarity.Price,
+                Rarity = userPokemon.Pokemon.Rarity.Name,
+                AcquiredAt = userPokemon.AcquiredAt
             });
         }
 
@@ -64,7 +64,7 @@ namespace ProjetoPokeShop.Services
             if (user == null)
                 throw new KeyNotFoundException("User does not exist");
 
-            int userPokemonValue = userPokemon.Pokemon.Value;
+            int userPokemonValue = userPokemon.Pokemon.Rarity.Price;
 
             await _repository.SellUserPokemonAsync(userPokemon, user);
 
@@ -76,11 +76,11 @@ namespace ProjetoPokeShop.Services
 
                 Nature = userPokemon.Pokemon.Nature,
 
-                Type = userPokemon.Pokemon.Type,
+                Elements = userPokemon.Pokemon.Elements.Select(e => e.Name).ToList(),
 
-                Rarity = userPokemon.Pokemon.Rarity,
+                Rarity = userPokemon.Pokemon.Rarity.Name,
 
-                PokemonMarketValue = userPokemonValue,
+                MarketValue = userPokemonValue,
 
                 CoinsAdjustment = $"+ {userPokemonValue:C0}"
             };

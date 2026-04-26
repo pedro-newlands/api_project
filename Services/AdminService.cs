@@ -131,7 +131,7 @@ namespace ProjetoPokeShop.Services
             {
                 Message = "'Get' Succeed",
                 TargetEntity = pokemon
-            };;
+            };
         }
 
         public async Task<ResultDto<Pokemon>> CreatePokemonAsync(string superPassword, PokemonDto dto)
@@ -148,10 +148,9 @@ namespace ProjetoPokeShop.Services
             Pokemon pokemon = new()
             {
                 Name = dto.Name,
-                Type = dto.Type,
+                Elements = await _repository.GetElementsByNames(dto.Elements),
                 Nature = dto.Nature,
-                Rarity = dto.Rarity,
-                Value = Pokemon.GetDefaultValue(dto.Rarity),
+                RarityId = dto.RarityId,
                 OwnerId = dto.OwnerId
             };
             var newPokemon = await _repository.CreatePokemonAsync(pokemon);
@@ -210,8 +209,7 @@ namespace ProjetoPokeShop.Services
                 await _repository.DeleteUserPokemonAsync(userPokemon);
             }
 
-            await _repository.UpdatePokemonAsync(pokemon, dto);
-            var updatedPokemon = await _repository.GetPokemonByIdAsync(pokemon.Id);
+            var updatedPokemon = await _repository.UpdatePokemonAsync(pokemon, dto);
 
             return new ResultDto<Pokemon>
             {
@@ -284,8 +282,8 @@ namespace ProjetoPokeShop.Services
         private async Task AdminAsync(string superPassword)
         {
             var admin = await _repository.GetUserByIdAsync(1);
-        
-            if (admin.PasswordHash != superPassword)
+            
+            if (admin == null || admin.PasswordHash != superPassword)
                 throw new InvalidOperationException("Not allowed");
         }
     }

@@ -9,11 +9,9 @@ namespace ProjetoPokeShop.DTOs
 
         public string? Nature { get; set; }
 
-        public string? Type { get; set; }
+        public List<Elements>? Elements { get; set; }
 
-        public PokemonRarity? Rarity { get; set; }
-
-        public int? Value { get; set; }
+        public int? RarityId { get; set; }
 
         public int? OwnerId { get; set; }
     }

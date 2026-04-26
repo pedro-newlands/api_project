@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 namespace ProjetoPokeShop.Models
 {
     [JsonConverter(typeof(JsonStringEnumConverter))]
-    public enum PokemonRarity
+    public enum Rarities
     {
         Common, 
         Uncommon, 
