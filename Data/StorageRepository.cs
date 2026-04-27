@@ -13,49 +13,87 @@ namespace ProjetoPokeShop.Repositories
             _context = context;
         }
 
-        public async Task<IEnumerable<UserPokemon>> GetUserInventoryAsListAsync(int userId)
+        public async Task<IEnumerable<Pokemon>> GetUserInventoryAsListAsync(int userId)
         {
-            return await _context.UserPokemons
-                .Include(up => up.Pokemon)
-                    .ThenInclude(p => p.Elements)
-                .Include(up => up.Pokemon)
-                    .ThenInclude(p => p.Rarity)
-                .Where(up => up.UserId == userId)
+            return await _context.Pokemons
+                .AsNoTracking()
+                .Include(p => p.Rarity)
+                .Include(p => p.Elements)
+                .Where(p => p.OwnerId == userId)
                 .ToListAsync();
         }
 
-        public async Task<UserPokemon?> GetUserPokemonById(int userPokemonId)
+        public async Task<IEnumerable<Transaction>> GetTransactionsAsListAsync(int userId)
         {
-            return await _context.UserPokemons
-                .Include(up => up.Pokemon)
-                    .ThenInclude(p => p.Elements)
-                .Include(up => up.Pokemon)
-                    .ThenInclude(p => p.Rarity)
-                .FirstOrDefaultAsync(up => up.Id == userPokemonId);
+            return await _context.Transactions
+                .Where(t => t.UserId == userId)
+                .OrderByDescending(t => t.TransactionDate)
+                .AsNoTracking()
+                .ToListAsync();
         }
 
-        public async Task<User?> GetUserById(int userId)
+        public async Task<Pokemon?> GetPokemonById(int id)
         {
-            return await _context.Users.FindAsync(userId);
+            return await _context.Pokemons
+                .Include(p => p.Owner)
+                .Include(p => p.Rarity)
+                .Include(p => p.Elements)
+                .FirstOrDefaultAsync(up => up.Id == id);
         }
 
-        public async Task<bool> UserExistsByIdasync(int userId)
+        public async Task<User?> GetUserById(int id)
         {
-            return await _context.Users.AnyAsync(u => u.Id == userId);
+            return await _context.Users.FindAsync(id);
         }
 
-        public async Task<bool> UserPokemonExistsByUserIdAsync(int userId)
+        public async Task<bool> UserExistsByIdAsync(int id)
         {
-            return await _context.UserPokemons.AnyAsync(up => up.UserId == userId);
+            return await _context.Users.AnyAsync(u => u.Id == id);
         }
 
-        public async Task SellUserPokemonAsync(UserPokemon userPokemon, User user)
+        public async Task<bool> UserOwnsSomeInventary(int id)
+        {
+            return await _context.Pokemons.AnyAsync(p => p.OwnerId == id);
+        }
+
+        public async Task<PokemonCenter?> GetPokemonCenterByIdAsync(int id)
+        {
+            return await _context.PokemonCenter  
+                .FindAsync(id);
+        }
+
+        public async Task ReturnToPokemonCenter(Pokemon pokemon)
         {
             using var transaction = await _context.Database.BeginTransactionAsync();
-            user.Coins += userPokemon.Pokemon.Rarity.Price;
-            userPokemon.Pokemon.OwnerId = null;
+            pokemon.OwnerId = null;
 
-            _context.UserPokemons.Remove(userPokemon);
+            PokemonCenter pokemonCenter = new()
+            {
+              PokemonId = pokemon.Id,
+              MarketPrice = pokemon.Rarity.Price  
+            };
+
+            _context.PokemonCenter.Add(pokemonCenter);
+
+            await _context.SaveChangesAsync();
+            await transaction.CommitAsync();
+        }
+
+        public async Task SellPokemonAsync(User user, Pokemon pokemon)
+        {
+            using var transaction = await _context.Database.BeginTransactionAsync();
+
+            var price = pokemon.Rarity.Price;
+            user.Coins += price;
+
+            _context.Transactions.Add(new Transaction
+            {
+                UserId = user.Id,
+                PokemonId = pokemon.Id,
+                Status = TransactionStatus.Sold,
+                CoinsAdjustment = $"+ {price:C0}",
+            });
+            
             await _context.SaveChangesAsync();
             await transaction.CommitAsync();
         }

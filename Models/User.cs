@@ -1,5 +1,3 @@
-using MySqlConnector;
-
 namespace ProjetoPokeShop.Models
 {
     public class User
@@ -13,6 +11,8 @@ namespace ProjetoPokeShop.Models
         public int Coins { get; set; } = 0; // moedas iniciais
 
         public bool FirstLogin { get; set; } = false;
+
+        public bool IsActive {get; set; } = true; //permite o DeleteBehavior.Restrict apropriado e não quebra o histórico de registros das transações
 
     }
 }

@@ -1,3 +1,4 @@
+using api_project.DTOs.Management;
 using Microsoft.AspNetCore.Mvc;
 using ProjetoPokeShop.DTOs;
 using ProjetoPokeShop.DTOs.Entity;
@@ -17,7 +18,7 @@ namespace ProjetoPokeShop.Controllers
 
         //User management
         [HttpGet("users")]
-        public async Task<IActionResult> GetAllUsersAsync([FromHeader(Name = "X-Super-Password")] string superPassword)
+        public async Task<ActionResult<ResultDto<IEnumerable<User>>>> GetAllUsersAsync([FromHeader(Name = "X-Super-Password")] string superPassword)
         {
             var users = await _adminService.GetAllUsersAsync(superPassword);
 
@@ -103,7 +104,7 @@ namespace ProjetoPokeShop.Controllers
 
         //Pokemon management
         [HttpGet("pokemons")]
-        public async Task<IActionResult> GetAllPokemonsAsync([FromHeader(Name = "X-Super-Password")] string superPassword)
+        public async Task<ActionResult<ResultDto<IEnumerable<Pokemon>>>> GetAllPokemonsAsync([FromHeader(Name = "X-Super-Password")] string superPassword)
         {
             var pokemons = await _adminService.GetAllPokemonsAsync(superPassword);
 
@@ -192,11 +193,11 @@ namespace ProjetoPokeShop.Controllers
 
         //Pokemon center management
         [HttpPost("pokemoncenter/create")]
-        public async Task<ActionResult<ResultDto<PokemonCenter>>> CreatePokemonCenterAsync([FromHeader(Name = "X-Super-Password")] string superPassword, [FromBody] PokemonCenter pokemonCenter)
+        public async Task<ActionResult<ResultDto<PokemonCenter>>> CreatePokemonCenterAsync([FromHeader(Name = "X-Super-Password")] string superPassword, [FromBody] PokemonCenterDto dto)
         {
             try
             {
-                var oldPokemonCenter = await _adminService.CreatePokemonCenterAsync(superPassword, pokemonCenter);
+                var oldPokemonCenter = await _adminService.CreatePokemonCenterAsync(superPassword, dto);
 
                 return Ok(oldPokemonCenter);
             }
@@ -214,14 +215,141 @@ namespace ProjetoPokeShop.Controllers
             }
         }
 
+        [HttpPatch("pokemoncenter/update/{id}")]
+        public async Task<ActionResult<ResultDto<PokemonCenter>>> UpdatePokemonCenterMarketPriceAsync([FromHeader(Name = "X-Super-Password")] string superPassword, int id, [FromBody] UpdatePriceDto dto)
+        {
+            try
+            {
+                var updatedPokemonCenter = await _adminService.UpdatePokemonCenterMarketPriceAsync(superPassword, id, dto);
+                return Ok(updatedPokemonCenter);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+
         [HttpDelete("pokemoncenter/delete/{id}")]
-        public async Task<ActionResult<ResultDto<PokemonCenter>>> DeletePokemonCenterasync([FromHeader(Name = "X-Super-Password")] string superPassword, int id)
+        public async Task<ActionResult<ResultDto<PokemonCenter>>> DeletePokemonCenterAsync([FromHeader(Name = "X-Super-Password")] string superPassword, int id)
         {
             try
             {
                 var deletedPokemonCenter = await _adminService.DeletePokemonCenterAsync(superPassword, id);
 
                 return Ok(deletedPokemonCenter);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        //Transaction management
+        [HttpGet("transactions")]
+        public async Task<ActionResult<ResultDto<IEnumerable<Transaction>>>> GetAllTransactionsAsync([FromHeader(Name = "X-Super-Password")] string superPassword)
+        {
+            var transactions = await _adminService.GetAllTransactionsAsync(superPassword);
+
+            return Ok(transactions);
+        }
+
+        [HttpGet("transaction/{id}", Name = "GetTransactionById")]
+        public async Task<ActionResult<ResultDto<Transaction>>> GetTransactionByIdAsync([FromHeader(Name = "X-Super-Password")] string superPassword, int id)
+        {
+            try
+            {
+                var transaction = await _adminService.GetTransactionByIdAsync(superPassword, id);
+
+                return Ok(transaction);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        [HttpGet("transactions/user/{id}", Name = "GetTransactionsByUserId")]
+        public async Task<ActionResult<ResultDto<IEnumerable<Transaction>>>> GetTransactionsByUserIdAsync([FromHeader(Name = "X-Super-Password")] string superPassword, int id)
+        {
+            try
+            {
+                var transaction = await _adminService.GetTransactionsByUserIdAsync(superPassword, id);
+
+                return Ok(transaction);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        [HttpGet("transactions/pokemon/{id}", Name = "GetTransactionsByPokemonId")]
+        public async Task<ActionResult<ResultDto<IEnumerable<Transaction>>>> GetTransactionsByPokemonIdAsync([FromHeader(Name = "X-Super-Password")] string superPassword, int id)
+        {
+            try
+            {
+                var transaction = await _adminService.GetTransactionsByPokemonIdAsync(superPassword, id);
+
+                return Ok(transaction);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        [HttpGet("transactions/history")]
+        public async Task<ActionResult<ResultDto<IEnumerable<Transaction>>>> GetTransactionsHistory(
+            [FromHeader(Name = "X-Super-Password")] string superPassword,
+            [FromQuery] int? year,
+            [FromQuery] int? month,
+            [FromQuery] int? day)
+        {
+            try
+            {
+                var result = await _adminService.GetTransactionsHistoryAsync(superPassword, year, month, day);
+
+                return Ok(result);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        [HttpDelete("transaction/delete/{id}")]
+        public async Task<ActionResult<ResultDto<PokemonCenter>>> DeleteTransactionAsync([FromHeader(Name = "X-Super-Password")] string superPassword, int id)
+        {
+            try
+            {
+                var transactionDeleted = await _adminService.DeleteTransactionAsync(superPassword, id);
+
+                return Ok(transactionDeleted);
             }
             catch (KeyNotFoundException ex)
             {

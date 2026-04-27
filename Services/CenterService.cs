@@ -18,31 +18,31 @@ namespace ProjetoPokeShop.Services
 
         public async Task<BuyResultDto> BuyPokemonAsync(int pokemonCenterId, int userId)
         {
-            var outPokemon = await _repository.GetPokemonCenterByIdAsync(pokemonCenterId)
+            var outPokemonCenter = await _repository.GetPokemonCenterByIdAsync(pokemonCenterId)
                 ?? throw new KeyNotFoundException("Pokémon not found");
 
-            if (outPokemon.Pokemon.OwnerId != null)
+            if (outPokemonCenter.Pokemon.OwnerId != null)
                 throw new InvalidOperationException("Pokémon is no longer available");
 
             var user = await _repository.GetUserByIdAsync(userId)
                 ?? throw new KeyNotFoundException("User not found");
 
-            if (user.Coins < outPokemon.Pokemon.Rarity.Price)
+            if (user.Coins < outPokemonCenter.MarketPrice)
                 throw new InvalidOperationException("Not enough coins");
 
-            await _repository.BuyPokemonAsync(outPokemon, user);
+            await _repository.BuyPokemonAsync(outPokemonCenter, user);
 
-            var value = outPokemon.Pokemon.Rarity.Price;
+            var value = outPokemonCenter.MarketPrice;
 
             return new BuyResultDto
             {
                 OwnerId = user.Id,
-                PokemonName = outPokemon.Pokemon.Name,
-                Nature = outPokemon.Pokemon.Nature,
-                Elements = outPokemon.Pokemon.Elements.Select(e => e.Name).ToList(),
-                Rarity = outPokemon.Pokemon.Rarity.Name,
-                MarketValue = outPokemon.Pokemon.Rarity.Price,
-                CoinsAdjustment = $"-{outPokemon.Pokemon.Rarity.Price:C0}"
+                PokemonName = outPokemonCenter.Pokemon.Name,
+                Nature = outPokemonCenter.Pokemon.Nature,
+                Elements = outPokemonCenter.Pokemon.Elements.Select(e => e.Name).ToList(),
+                Rarity = outPokemonCenter.Pokemon.Rarity.Name,
+                MarketValue = outPokemonCenter.MarketPrice,
+                CoinsAdjustment = $"-{value:C0}"
             };
         }
 

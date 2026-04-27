@@ -1,3 +1,4 @@
+using api_project.DTOs.Management;
 using ProjetoPokeShop.DTOs;
 using ProjetoPokeShop.DTOs.Entity;
 using ProjetoPokeShop.Models;
@@ -29,8 +30,23 @@ namespace ProjetoPokeShop.Services
         Task<ResultDto<Pokemon>> DeletePokemonAsync(string superPassword, int targetId);
 
         //PokemonCenter management
+        Task<ResultDto<PokemonCenter>> CreatePokemonCenterAsync(string superPassword, PokemonCenterDto dto);
+
+        Task<ResultDto<PokemonCenter>> UpdatePokemonCenterMarketPriceAsync(string superPassword, int targetId, UpdatePriceDto dto);
+
         Task<ResultDto<PokemonCenter>> DeletePokemonCenterAsync(string superPassword, int targetId);
 
-        Task<ResultDto<PokemonCenter>> CreatePokemonCenterAsync(string superPassword, PokemonCenter pokemonCenter);
+        //Transaction management
+        Task<ResultDto<IEnumerable<Transaction>>> GetAllTransactionsAsync(string superPassword);
+
+        Task<ResultDto<Transaction>> GetTransactionByIdAsync(string superPassword, int targetId);
+
+        Task<ResultDto<IEnumerable<Transaction>>> GetTransactionsByUserIdAsync(string superPassword, int targetId);
+
+        Task<ResultDto<IEnumerable<Transaction>>> GetTransactionsByPokemonIdAsync(string superPassword, int targetId);
+
+        Task<ResultDto<IEnumerable<Transaction>>> GetTransactionsHistoryAsync(string superPassword, int? year = null, int? month = null, int? day = null);
+
+        Task<ResultDto<Transaction>> DeleteTransactionAsync(string superPassword, int targetId);
     }
 }

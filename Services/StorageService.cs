@@ -18,45 +18,47 @@ namespace ProjetoPokeShop.Services
             _repository = repository;
         }
 
-    public async Task<IEnumerable<EngagedPokemonDto>> GetInventoryAsync(int userId)
-    {
-        if (!await _repository.UserExistsByIdasync(userId))
-            throw new KeyNotFoundException("User does not exist");
-
-        if (!await _repository.UserPokemonExistsByUserIdAsync(userId))
-            throw new KeyNotFoundException("No inventory for this user");
-
-        var storage = await _repository.GetUserInventoryAsListAsync(userId);
-
-        var result = new List<EngagedPokemonDto>();
-
-        foreach (var userPokemon in storage)
+        public async Task<IEnumerable<EngagedPokemonDto>> GetInventoryAsync(int userId)
         {
-            result.Add(new EngagedPokemonDto
+            if (!await _repository.UserExistsByIdAsync(userId))
+                throw new KeyNotFoundException("User does not exist");
+
+            if (!await _repository.UserOwnsSomeInventary(userId))
+                throw new KeyNotFoundException("No inventory for this user");
+
+            var storage = await _repository.GetUserInventoryAsListAsync(userId);
+
+            if (!storage.Any())
+                return Enumerable.Empty<EngagedPokemonDto>();
+
+            return storage.Select(p => new EngagedPokemonDto
             {
-                UserPokemonId = userPokemon.Id,
-                Name = userPokemon.Pokemon.Name,
-                Nature = userPokemon.Pokemon.Nature,
-                Elements = userPokemon.Pokemon.Elements.Select(e => e.Name).ToList(),
-                MarketValue = userPokemon.Pokemon.Rarity.Price,
-                Rarity = userPokemon.Pokemon.Rarity.Name,
-                AcquiredAt = userPokemon.AcquiredAt
+                UserPokemonId = p.Id,
+                Name = p.Name,
+                Nature = p.Nature,
+                Elements = p.Elements.Select(e => e.Name).ToList(),
+                MarketValue = p.Rarity.Price,
+                Rarity = p.Rarity.Name,
             });
         }
 
-        return result;
-    }
-                
+        public async Task<IEnumerable<Transaction>> GetTransactionsAsync(int userId)
+        {   
+            if (!await _repository.UserExistsByIdAsync(userId))
+                throw new KeyNotFoundException("User does not exist");
 
-        public async Task<SellResultDto> SellPokemonAsync(int userId, int userPokemonId)
+            return await _repository.GetTransactionsAsListAsync(userId);
+        }
+                
+        public async Task<SellResultDto> SellPokemonAsync(int userId, int pokemonId)
         {
 
-            var userPokemon = await _repository.GetUserPokemonById(userPokemonId);
+            var pokemon = await _repository.GetPokemonById(pokemonId);
 
-            if (userPokemon == null)
+            if (pokemon == null)
                 throw new KeyNotFoundException("Pokémon does not exist");
 
-            if (userPokemon.UserId != userId)
+            if (pokemon.OwnerId != userId)
                 throw new InvalidOperationException("This pokémon does not belong to this user");
 
             var user = await _repository.GetUserById(userId);
@@ -64,25 +66,34 @@ namespace ProjetoPokeShop.Services
             if (user == null)
                 throw new KeyNotFoundException("User does not exist");
 
-            int userPokemonValue = userPokemon.Pokemon.Rarity.Price;
+            int pokemonPrice = pokemon.Rarity.Price;
 
-            await _repository.SellUserPokemonAsync(userPokemon, user);
+            var existing = await _repository.GetPokemonCenterByIdAsync(pokemonId);
+            if (existing != null)
+            {
+                existing.MarketPrice =  pokemonPrice;
+            } else
+            {
+                await _repository.ReturnToPokemonCenter(pokemon);
+            }
+
+            await _repository.SellPokemonAsync(user, pokemon);
 
             return new SellResultDto
             {
                 UserName = user.UserName,
 
-                PokemonName = userPokemon.Pokemon.Name,
+                PokemonName = pokemon.Name,
 
-                Nature = userPokemon.Pokemon.Nature,
+                Nature = pokemon.Nature,
 
-                Elements = userPokemon.Pokemon.Elements.Select(e => e.Name).ToList(),
+                Elements = pokemon.Elements.Select(e => e.Name).ToList(),
 
-                Rarity = userPokemon.Pokemon.Rarity.Name,
+                Rarity = pokemon.Rarity.Name,
 
-                MarketValue = userPokemonValue,
+                MarketValue = pokemonPrice,
 
-                CoinsAdjustment = $"+ {userPokemonValue:C0}"
+                CoinsAdjustment = $"+ {pokemonPrice:C0}"
             };
         }
     }

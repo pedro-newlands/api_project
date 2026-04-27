@@ -1,5 +1,3 @@
-using ProjetoPokeShop.Models;
-
 namespace ProjetoPokeShop.Models
 {
     public class Pokemon

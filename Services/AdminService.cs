@@ -5,6 +5,7 @@ using ProjetoPokeShop.Models;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using ProjetoPokeShop.DTOs.Entity;
 using ProjetoPokeShop.Repositories;
+using api_project.DTOs.Management;
 
 namespace ProjetoPokeShop.Services
 {
@@ -31,11 +32,11 @@ namespace ProjetoPokeShop.Services
             };
         }
 
-        public async Task<ResultDto<User>> GetUserByIdAsync(string superPassword, int id)
+        public async Task<ResultDto<User>> GetUserByIdAsync(string superPassword, int targetId)
         {
             await AdminAsync(superPassword);
 
-            var user = await _repository.GetUserByIdAsync(id);
+            var user = await _repository.GetUserByIdAsync(targetId);
             if (user is null)
                 throw new KeyNotFoundException("User not found");
             
@@ -70,14 +71,14 @@ namespace ProjetoPokeShop.Services
             };
         }
 
-        public async Task<ResultDto<User>> UpdateUserAsync(string superPassword, int id, UpdateUserDto dto)
+        public async Task<ResultDto<User>> UpdateUserAsync(string superPassword, int targetId, UpdateUserDto dto)
         {
             await AdminAsync(superPassword);
 
-            var user = await _repository.GetUserByIdAsync(id);
-            if (user is null)
+            var targetUser = await _repository.GetUserByIdAsync(targetId);
+            if (targetUser is null)
                 throw new KeyNotFoundException("User not found");   
-            var updatedUser = await _repository.UpdateUserAsync(user, dto);
+            var updatedUser = await _repository.UpdateUserAsync(targetUser, dto);
 
             return new ResultDto<User>
             {
@@ -86,22 +87,25 @@ namespace ProjetoPokeShop.Services
             };
         }
 
-        public async Task<ResultDto<User>> DeleteUserAsync(string superPassword, int id)
+        public async Task<ResultDto<User>> DeleteUserAsync(string superPassword, int targetId)
         {
             await AdminAsync(superPassword);
 
-            var user = await _repository.GetUserByIdAsync(id);
-            if (id == 1)
-                throw new InvalidOperationException("Admin can not be deleted");
-            if (user is null)
-                throw new KeyNotFoundException("User not found");
+            if (targetId == 1)
+                throw new InvalidOperationException("Admin can not be deactivated");
 
-            await _repository.DeleteUserAsync(user);
+            var targetUser = await _repository.GetUserByIdAsync(targetId) 
+                ?? throw new KeyNotFoundException("User not found");
+
+            await _repository.UpdateUserAsync(targetUser, new UpdateUserDto
+            {
+                IsActive = false
+            });
 
             return new ResultDto<User>
             {
-                Message = "'Delete' Succeed",
-                TargetEntity = user
+                Message = "'Delete' (Deactivation) Succeed",
+                TargetEntity = targetUser
             };
         }
 
@@ -119,11 +123,11 @@ namespace ProjetoPokeShop.Services
             };
         }
 
-        public async Task<ResultDto<Pokemon>> GetPokemonByIdAsync(string superPassword, int id)
+        public async Task<ResultDto<Pokemon>> GetPokemonByIdAsync(string superPassword, int targetId)
         {
             await AdminAsync(superPassword);
 
-            var pokemon = await _repository.GetPokemonByIdAsync(id);
+            var pokemon = await _repository.GetPokemonByIdAsync(targetId);
             if (pokemon is null)
                 throw new KeyNotFoundException("Pokemon not found");
 
@@ -155,22 +159,6 @@ namespace ProjetoPokeShop.Services
             };
             var newPokemon = await _repository.CreatePokemonAsync(pokemon);
 
-            if (dto.OwnerId is not null)
-            {
-                UserPokemon userPokemon = new()
-                {
-                    UserId = dto.OwnerId.Value,
-                    PokemonId = pokemon.Id
-                };
-                await _repository.CreateUserPokemonAsync(userPokemon);
-            }
-
-            PokemonCenter center = new()
-            {
-                PokemonId = pokemon.Id
-            };
-            await _repository.CreatePokemonCenterAsync(center);
-
             return new ResultDto<Pokemon>
             {
                 Message = "'Post' Succeed",
@@ -178,38 +166,32 @@ namespace ProjetoPokeShop.Services
             };
         }
 
-        public async Task<ResultDto<Pokemon>> UpdatePokemonAsync(string superPassword, int id, UpdatePokemonDto dto)
+        public async Task<ResultDto<Pokemon>> UpdatePokemonAsync(string superPassword, int targetId, UpdatePokemonDto dto)
         {
             await AdminAsync(superPassword);
 
-            var pokemon = await _repository.GetPokemonByIdAsync(id);
-            if (pokemon is null)
+            var targetPokemon = await _repository.GetPokemonByIdAsync(targetId);
+            if (targetPokemon is null)
                 throw new KeyNotFoundException("Pokemon not found");
 
             if (dto.OwnerId is not null && !await _repository.UserExistsByIdAsync(dto.OwnerId.Value))
                 throw new KeyNotFoundException("New owner not found");
 
-            var userPokemon = await _repository.GetUserPokemonByPokemonIdAsync(id);
+            if (dto.OwnerId != targetPokemon.OwnerId)
+            {
+               Transaction transaction = new()
+               {
+                   UserId = dto.OwnerId.Value,
+                   PokemonId = targetId,
+                   Status = TransactionStatus.Transferred,
+                   CoinsAdjustment = "",
+                   TransactionDate = DateTime.UtcNow
+               };
 
-            if (dto.OwnerId != null)
-            {
-                if (userPokemon != null)
-                    userPokemon.UserId = dto.OwnerId.Value;
-                else
-                {
-                    await _repository.CreateUserPokemonAsync(new UserPokemon
-                    {
-                        UserId = dto.OwnerId.Value,
-                        PokemonId = pokemon.Id,
-                    });
-                }
-            }
-            else if (userPokemon != null)
-            {
-                await _repository.DeleteUserPokemonAsync(userPokemon);
+               await _repository.CreateTransactionAsync(transaction);
             }
 
-            var updatedPokemon = await _repository.UpdatePokemonAsync(pokemon, dto);
+            var updatedPokemon = await _repository.UpdatePokemonAsync(targetPokemon, dto);
 
             return new ResultDto<Pokemon>
             {
@@ -237,6 +219,64 @@ namespace ProjetoPokeShop.Services
         }
 
         //pokemonCenter management
+
+        public async Task<ResultDto<PokemonCenter>> CreatePokemonCenterAsync(string superPassword, PokemonCenterDto dto)
+        {
+            await AdminAsync(superPassword);
+
+            var pokemon = await _repository.GetPokemonByIdAsync(dto.PokemonId);
+
+            if(pokemon == null)
+                throw new KeyNotFoundException("Pokémon does not exist");
+
+            var existsInCenter = await _repository.PokemonCenterExistsById(dto.PokemonId);
+
+            if (existsInCenter)
+                throw new InvalidOperationException("Pokémon is in Center already");
+
+            PokemonCenter pokemonCenter = new()
+            {
+                PokemonId = dto.PokemonId,
+                MarketPrice = dto.MarketPrice ?? pokemon.Rarity.Price
+            };
+
+            var createdPokemonCenter = await _repository.CreatePokemonCenterAsync(pokemonCenter);
+
+            return new ResultDto<PokemonCenter>
+            {
+                Message = "'Post' succeed",
+                TargetEntity = createdPokemonCenter
+            };
+
+        }
+
+        public async Task<ResultDto<PokemonCenter>> UpdatePokemonCenterMarketPriceAsync(string superPassword, int targetId, UpdatePriceDto dto)
+        {
+            await AdminAsync(superPassword);
+
+            var targetPokemonCenter = await _repository.GetPokemonCenterByIdAsync(targetId);
+
+            if (targetPokemonCenter == null)
+            {
+                throw new KeyNotFoundException("Pokémon does not exist in the store");
+            }
+
+            if (dto.MarketPrice == null)
+            {
+                var pokemon = await _repository.GetPokemonByIdAsync(targetId);
+
+                dto.MarketPrice = pokemon?.Rarity.Price;
+            }
+
+            var updatedPokemonCenter = await _repository.UpdatePokemonCenterMarketPriceAsync(targetPokemonCenter, dto.MarketPrice);
+
+            return new ResultDto<PokemonCenter>
+            {
+                Message = "'Update' Succeed",
+                TargetEntity = updatedPokemonCenter
+            };
+        }
+
         public async Task<ResultDto<PokemonCenter>> DeletePokemonCenterAsync(string superPassword, int targetId)
         {
             await AdminAsync(superPassword);
@@ -256,26 +296,111 @@ namespace ProjetoPokeShop.Services
             };
         }
 
-        public async Task<ResultDto<PokemonCenter>> CreatePokemonCenterAsync(string superPassword, PokemonCenter pokemonCenter)
+        public async Task<ResultDto<IEnumerable<Transaction>>> GetAllTransactionsAsync(string superPassword)
         {
             await AdminAsync(superPassword);
 
-            var pokemonWish = await _repository.GetPokemonByIdAsync(pokemonCenter.PokemonId);
+            var transactios = await _repository.GetTransactionsAsync();
 
-            if (pokemonWish == null)
-                throw new KeyNotFoundException("Pokémon does not exist");
-
-            var exists = await _repository.PokemonCenterExistsByPokemonId(pokemonCenter.PokemonId);
-
-            if (exists)
-                throw new InvalidOperationException("Pokémon is in Center already");
-
-            await _repository.CreatePokemonCenterAsync(pokemonCenter);
-
-            return new ResultDto<PokemonCenter>
+            return new ResultDto<IEnumerable<Transaction>> 
             {
-                Message = "'Post' succeed",
-                TargetEntity = pokemonCenter
+                Message = "'Get' Succeed",
+                TargetEntity = transactios
+            };
+        }
+
+        public async Task<ResultDto<Transaction>> GetTransactionByIdAsync(string superPassword, int targetId)
+        {
+            await AdminAsync(superPassword);
+
+            var transaction = await _repository.GetTransactionByIdAsync(targetId);
+            if (transaction is null)
+                throw new KeyNotFoundException("Transaction not found");
+
+            return new ResultDto<Transaction>
+            {
+                Message = "'Get' Succeed",
+                TargetEntity = transaction
+            };
+        }
+
+        public async Task<ResultDto<IEnumerable<Transaction>>> GetTransactionsByUserIdAsync(string superPassword, int targetId)
+        {
+            await AdminAsync(superPassword);
+
+            var transactions = await _repository.GetTransactionsByUserIdAsync(targetId);
+            if (transactions is null)
+                throw new KeyNotFoundException("Transaction not found");
+
+            return new ResultDto<IEnumerable<Transaction>>
+            {
+                Message = "'Get' Succeed",
+                TargetEntity = transactions
+            };
+        }
+
+        public async Task<ResultDto<IEnumerable<Transaction>>> GetTransactionsByPokemonIdAsync(string superPassword, int targetId)
+        {
+            await AdminAsync(superPassword);
+
+            var transactions = await _repository.GetTransactionsByPokemonIdAsync(targetId);
+            if (transactions is null)
+                throw new KeyNotFoundException("Transaction not found");
+
+            return new ResultDto<IEnumerable<Transaction>>
+            {
+                Message = "'Get' Succeed",
+                TargetEntity = transactions
+            };
+        }
+
+        public async Task<ResultDto<IEnumerable<Transaction>>> GetTransactionsHistoryAsync(string superPassword, int? year = null, int? month = null, int? day = null)
+        {
+            await AdminAsync(superPassword);
+
+            IQueryable<Transaction> query = _repository.GetTransactionsHistoryAsync();
+
+            if (year.HasValue)
+            {
+                query = query.Where(t => t.TransactionDate.Year == year.Value);
+            }
+
+            if (month.HasValue)
+            {
+                query = query.Where(t => t.TransactionDate.Month == month.Value);
+            }
+
+            if (day.HasValue)
+            {
+                query = query.Where(t => t.TransactionDate.Day == day.Value);
+            }
+
+            var transactions = await query
+                .OrderByDescending(t => t.TransactionDate)
+                .ToListAsync();
+
+            return new ResultDto<IEnumerable<Transaction>>
+            {
+                Message = "'Get' Succeed",
+                TargetEntity = transactions
+            };
+        }
+
+        public async Task<ResultDto<Transaction>> DeleteTransactionAsync(string superPassword, int targetId)
+        {
+            await AdminAsync(superPassword);
+
+            var targetTransaction = await _repository.GetTransactionByIdAsync(targetId);
+
+            if (targetTransaction == null)
+                throw new KeyNotFoundException("Transaction does not exist");
+
+            await _repository.DeleteTransactionAsync(targetTransaction);
+
+            return new ResultDto<Transaction>
+            {
+                Message = "'Delete' succeed",
+                TargetEntity = targetTransaction
             };
         }
 
@@ -286,5 +411,6 @@ namespace ProjetoPokeShop.Services
             if (admin == null || admin.PasswordHash != superPassword)
                 throw new InvalidOperationException("Not allowed");
         }
+
     }
 }

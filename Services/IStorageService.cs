@@ -1,4 +1,5 @@
 using ProjetoPokeShop.DTOs;
+using ProjetoPokeShop.Models;
 
 namespace ProjetoPokeShop.Services
 {
@@ -6,6 +7,8 @@ namespace ProjetoPokeShop.Services
     {
         Task<IEnumerable<EngagedPokemonDto>> GetInventoryAsync(int userId);
 
-        Task<SellResultDto> SellPokemonAsync(int userId, int userPokemonId);
+        Task<IEnumerable<Transaction>> GetTransactionsAsync(int userId);
+
+        Task<SellResultDto> SellPokemonAsync(int pokemonId, int userId);
     }
 }

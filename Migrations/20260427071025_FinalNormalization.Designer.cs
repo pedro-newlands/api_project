@@ -11,8 +11,8 @@ using ProjetoPokeShop.Data;
 namespace ProjetoPokeShop.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260426153540_InitialNormalization")]
-    partial class InitialNormalization
+    [Migration("20260427071025_FinalNormalization")]
+    partial class FinalNormalization
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -83,16 +83,13 @@ namespace ProjetoPokeShop.Migrations
 
             modelBuilder.Entity("ProjetoPokeShop.Models.PokemonCenter", b =>
                 {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
                     b.Property<int>("PokemonId")
                         .HasColumnType("int");
 
-                    b.HasKey("Id");
+                    b.Property<int>("MarketPrice")
+                        .HasColumnType("int");
 
-                    b.HasIndex("PokemonId");
+                    b.HasKey("PokemonId");
 
                     b.ToTable("PokemonCenter");
                 });
@@ -115,6 +112,40 @@ namespace ProjetoPokeShop.Migrations
                     b.ToTable("Rarities");
                 });
 
+            modelBuilder.Entity("ProjetoPokeShop.Models.Transaction", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    b.Property<string>("CoinsAdjustment")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<int?>("PokemonId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<DateTime>("TransactionDate")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PokemonId");
+
+                    b.HasIndex("TransactionDate");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Transactions");
+                });
+
             modelBuilder.Entity("ProjetoPokeShop.Models.User", b =>
                 {
                     b.Property<int>("Id")
@@ -126,6 +157,11 @@ namespace ProjetoPokeShop.Migrations
 
                     b.Property<bool>("FirstLogin")
                         .HasColumnType("tinyint(1)");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("tinyint(1)")
+                        .HasDefaultValue(true);
 
                     b.Property<string>("PasswordHash")
                         .IsRequired()
@@ -141,33 +177,6 @@ namespace ProjetoPokeShop.Migrations
                         .IsUnique();
 
                     b.ToTable("Users");
-                });
-
-            modelBuilder.Entity("ProjetoPokeShop.Models.UserPokemon", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("AcquiredAt")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<int>("PokemonId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("UserId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("AcquiredAt");
-
-                    b.HasIndex("PokemonId")
-                        .IsUnique();
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("UserPokemons");
                 });
 
             modelBuilder.Entity("ElementPokemon", b =>
@@ -206,26 +215,25 @@ namespace ProjetoPokeShop.Migrations
             modelBuilder.Entity("ProjetoPokeShop.Models.PokemonCenter", b =>
                 {
                     b.HasOne("ProjetoPokeShop.Models.Pokemon", "Pokemon")
-                        .WithMany()
-                        .HasForeignKey("PokemonId")
+                        .WithOne()
+                        .HasForeignKey("ProjetoPokeShop.Models.PokemonCenter", "PokemonId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Pokemon");
                 });
 
-            modelBuilder.Entity("ProjetoPokeShop.Models.UserPokemon", b =>
+            modelBuilder.Entity("ProjetoPokeShop.Models.Transaction", b =>
                 {
                     b.HasOne("ProjetoPokeShop.Models.Pokemon", "Pokemon")
                         .WithMany()
                         .HasForeignKey("PokemonId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.HasOne("ProjetoPokeShop.Models.User", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Pokemon");

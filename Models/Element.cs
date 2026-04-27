@@ -1,5 +1,3 @@
-using ProjetoPokeShop.Models;
-
 namespace ProjetoPokeShop.Models
 {
     public class Element
@@ -7,6 +5,6 @@ namespace ProjetoPokeShop.Models
         public int Id {get; set; }
 
         public Elements Name {get; set; }
-
+        
     }
 }

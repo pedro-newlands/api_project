@@ -10,7 +10,7 @@ namespace ProjetoPokeShop.Data
 
         public DbSet<User> Users { get; set; }
         public DbSet<Pokemon> Pokemons { get; set; }
-        public DbSet<UserPokemon> UserPokemons { get; set; } // relação usuário + pokémon -> inventário
+        public DbSet<Transaction> Transactions { get; set; } // relação de histórico
         public DbSet<PokemonCenter> PokemonCenter { get; set; } // loja
         public DbSet<Element> Elements { get; set; }
         public DbSet<Rarity> Rarities { get; set; }
@@ -21,17 +21,26 @@ namespace ProjetoPokeShop.Data
         {
             base.OnModelCreating(modelBuilder);
 
-            modelBuilder.Entity<UserPokemon>()
-                .HasOne(up => up.User)
+            // modelBuilder.Entity<User>()
+            //     .ToTable(t => t.HasCheckConstraint(
+            //         "CK_User_Admin_Always_Active",
+            //         "Id <> 1 OR IsActive = 1"      
+            //     ));
+
+            modelBuilder.Entity<User>()
+                .HasQueryFilter(u => u.IsActive);
+
+            modelBuilder.Entity<Transaction>()
+                .HasOne(t => t.User)
                 .WithMany()
                 .HasForeignKey(p => p.UserId)
-                .OnDelete(DeleteBehavior.Cascade);
+                .OnDelete(DeleteBehavior.Restrict);
 
-            modelBuilder.Entity<UserPokemon>()
-                .HasOne(p => p.Pokemon)
+            modelBuilder.Entity<Transaction>()
+                .HasOne(t => t.Pokemon)
                 .WithMany()
                 .HasForeignKey(p => p.PokemonId)
-                .OnDelete(DeleteBehavior.Cascade);
+                .OnDelete(DeleteBehavior.SetNull);
 
             modelBuilder.Entity<Pokemon>()
                 .HasOne(p => p.Owner)
@@ -48,13 +57,25 @@ namespace ProjetoPokeShop.Data
                 .HasMany(p => p.Elements)
                 .WithMany()
                 .UsingEntity(j => j.ToTable("PokemonElement"));
+
+            modelBuilder.Entity<PokemonCenter>()
+                .HasKey(pc => pc.PokemonId);
             
             modelBuilder.Entity<PokemonCenter>()
                 .HasOne(pc => pc.Pokemon)
-                .WithMany()
-                .HasForeignKey(pc => pc.PokemonId)
+                .WithOne()
+                .HasForeignKey<PokemonCenter>(pc => pc.PokemonId)
                 .OnDelete(DeleteBehavior.Cascade);
 
+            //properties
+            modelBuilder.Entity<User>()
+                .Property(u => u.IsActive)
+                .HasDefaultValue(true);
+
+            modelBuilder.Entity<Transaction>()
+                .Property(t => t.Status)
+                .HasConversion<string>();
+            
             modelBuilder.Entity<Element>()
                 .Property(e => e.Name)
                 .HasConversion<string>();
@@ -68,12 +89,12 @@ namespace ProjetoPokeShop.Data
                 .HasIndex(u => u.UserName)
                 .IsUnique();
 
-            modelBuilder.Entity<UserPokemon>()
-                .HasIndex(up => up.AcquiredAt);
-
-            modelBuilder.Entity<UserPokemon>()
-                .HasIndex(up => up.PokemonId)
+            modelBuilder.Entity<Element>()
+                .HasIndex(e => e.Name)
                 .IsUnique();
+
+            modelBuilder.Entity<Transaction>()
+                .HasIndex(t => t.TransactionDate);
         }
 
     }

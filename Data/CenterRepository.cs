@@ -19,18 +19,13 @@ namespace ProjetoPokeShop.Repositories
         public async Task<IEnumerable<AvailablePokemonDto>> GetAvailablePokemonsAsync()
         {
             return await _context.PokemonCenter
-                .Include(pc => pc.Pokemon)
-                    .ThenInclude(p => p.Elements)
-                .Include(pc => pc.Pokemon)
-                    .ThenInclude(p => p.Rarity)
-                .Where(pc => pc.Pokemon.OwnerId == null)
                 .Select(pc => new AvailablePokemonDto
                 {
-                    PokemonCenterId = pc.Id,
+                    PokemonCenterId = pc.PokemonId,
                     Name = pc.Pokemon.Name,
                     Nature = pc.Pokemon.Nature,
                     Elements = pc.Pokemon.Elements.Select(e => e.Name).ToList(),
-                    MarketValue = pc.Pokemon.Rarity.Price,
+                    MarketValue = pc.MarketPrice,
                     Rarity = pc.Pokemon.Rarity.Name
                 })
                 .AsNoTracking()
@@ -46,29 +41,35 @@ namespace ProjetoPokeShop.Repositories
                 .ToListAsync();
         }
 
-        public async Task<PokemonCenter?> GetPokemonCenterByIdAsync(int pokemonCenterId)
+        public async Task<PokemonCenter?> GetPokemonCenterByIdAsync(int id)
         {
             return await _context.PokemonCenter
                 .Include(pc => pc.Pokemon)
                     .ThenInclude(p => p.Elements)
                 .Include(pc => pc.Pokemon)
                     .ThenInclude(p => p.Rarity)
-                .FirstOrDefaultAsync(pc => pc.Id == pokemonCenterId);
+                .FirstOrDefaultAsync(pc => pc.PokemonId == id);
         }
 
         public async Task BuyPokemonAsync(PokemonCenter pokemonCenter, User user)
         {
             using var transaction = await _context.Database.BeginTransactionAsync();
 
-            user.Coins -= pokemonCenter.Pokemon.Rarity.Price;
+            var price = pokemonCenter.MarketPrice;
+
+            user.Coins -= price;
 
             pokemonCenter.Pokemon.OwnerId = user.Id;
 
-            _context.UserPokemons.Add(new UserPokemon
+            _context.Transactions.Add(new Transaction
             {
                 UserId = user.Id,
-                PokemonId = pokemonCenter.PokemonId
+                PokemonId = pokemonCenter.PokemonId,
+                Status = TransactionStatus.Owned, // 
+                CoinsAdjustment = $"- {price:C0}",  // 
             });
+
+            _context.PokemonCenter.Remove(pokemonCenter);
 
             await _context.SaveChangesAsync();
             await transaction.CommitAsync();
@@ -82,13 +83,16 @@ namespace ProjetoPokeShop.Repositories
 
             user.Coins -= pokeballCost;
 
-            _context.UserPokemons.Add(new UserPokemon
+            _context.Transactions.Add(new Transaction
             {
                 UserId = user.Id,
-                PokemonId = randomPokemon.Id
+                PokemonId = randomPokemon.Id,
+                Status = TransactionStatus.Owned,
+                CoinsAdjustment = $"- {pokeballCost}",
             });
 
             randomPokemon.OwnerId = user.Id;
+
 
             await _context.SaveChangesAsync();
             await transaction.CommitAsync();

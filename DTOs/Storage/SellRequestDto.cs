@@ -4,6 +4,6 @@ namespace ProjetoPokeShop.DTOs
     {
         public int UserId { get; set; }
 
-        public int UserPokemonId { get; set; }
+        public int PokemonId { get; set; }
     }
 }

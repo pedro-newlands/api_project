@@ -9,5 +9,7 @@ namespace ProjetoPokeShop.DTOs
         public int? UpCoins { get; set; }
 
         public bool? FirstLogin { get; set; }
+
+        public bool? IsActive {get; set; }
     }
 }

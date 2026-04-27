@@ -16,6 +16,5 @@ namespace ProjetoPokeShop.DTOs
 
         public Rarities Rarity { get; set; }
 
-        public DateTime AcquiredAt { get; set; }
     }
 }

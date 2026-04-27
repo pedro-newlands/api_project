@@ -13,7 +13,7 @@ namespace ProjetoPokeShop.Repositories
 
         public AdminRepository(AppDbContext context) => _context = context;
     
-        //user
+        //users
         public async Task<IEnumerable<User>> GetUsersAsync()
         {
             return await _context.Users.ToListAsync();
@@ -46,19 +46,13 @@ namespace ProjetoPokeShop.Repositories
             user.UserName = dto.UpUsername ?? user.UserName;
             user.Coins = dto.UpCoins ?? user.Coins;
             user.FirstLogin = dto.FirstLogin ?? user.FirstLogin;
+            user.IsActive = dto.IsActive ?? user.IsActive;
 
             await _context.SaveChangesAsync();
             return user;
         }
 
-        public async Task<User> DeleteUserAsync(User user)
-        {
-            _context.Users.Remove(user);
-            await _context.SaveChangesAsync();
-            return user;
-        }
-
-        //pokemon
+        //pokemons
         public async Task<IEnumerable<Pokemon>> GetPokemonsAsync()
         {
             return await _context.Pokemons
@@ -71,11 +65,16 @@ namespace ProjetoPokeShop.Repositories
         public async Task<Pokemon?> GetPokemonByIdAsync(int id)
         {
             return await _context.Pokemons
-                // .AsNoTracking()  Melhora a performance, pois o EF não precisa monitorar mudanças nesse objeto
+                // AsNoTracking()  Melhora a performance, pois o EF não precisa monitorar mudanças nesse objeto
                 .Include(p => p.Owner)
                 .Include(p => p.Elements)
                 .Include(p => p.Rarity)
                 .FirstOrDefaultAsync(p => p.Id == id);
+        }
+
+        public async Task<bool> PokemonExistsByIdAsync(int id)
+        {
+            return await _context.Pokemons.AnyAsync(p => p.Id == id);
         }
 
         public async Task<Pokemon?> CreatePokemonAsync(Pokemon pokemon)
@@ -124,51 +123,98 @@ namespace ProjetoPokeShop.Repositories
             await _context.SaveChangesAsync();
         }
 
-       //userPokemon 
-        public async Task<UserPokemon?> GetUserPokemonByPokemonIdAsync(int pokemonId)
-        {
-            return await _context.UserPokemons.FirstOrDefaultAsync(up => up.PokemonId == pokemonId);
-        }
-
-        public async Task CreateUserPokemonAsync(UserPokemon userPokemon)
-        {
-            _context.UserPokemons.Add(userPokemon);
-            await _context.SaveChangesAsync();
-        }
-
-        public async Task DeleteUserPokemonAsync(UserPokemon userPokemon)
-        {
-            _context.UserPokemons.Remove(userPokemon);
-            await _context.SaveChangesAsync();
-        }
-
         //pokemonCenter
-        public async Task<PokemonCenter?> GetPokemonCenterByIdAsync(int targetId)
+        public async Task<PokemonCenter?> GetPokemonCenterByIdAsync(int id)
         {
             return await _context.PokemonCenter
                 .Include(pc => pc.Pokemon)
-                    .ThenInclude(p => p.Elements)
-                .Include(pc => pc.Pokemon)
-                    .ThenInclude(p => p.Rarity)
-                .FirstOrDefaultAsync(pc => pc.Id == targetId);
+                .FirstOrDefaultAsync(pc => pc.PokemonId == id);
         }
 
-        public async Task<bool> PokemonCenterExistsByPokemonId(int pokemonId)
+        public async Task<bool> PokemonCenterExistsById(int id)
         {
-            return await _context.PokemonCenter.AnyAsync(pc => pc.PokemonId == pokemonId);
+            return await _context.PokemonCenter.AnyAsync(pc => pc.PokemonId == id);
         }
 
-        public async Task<PokemonCenter?> CreatePokemonCenterAsync(PokemonCenter center)
+        public async Task<PokemonCenter?> CreatePokemonCenterAsync(PokemonCenter pokemonCenter)
         {
-            _context.PokemonCenter.Add(center);
+            
+            _context.PokemonCenter.Add(pokemonCenter);
+
             await _context.SaveChangesAsync();
-            var createdPokemonCenter = await GetPokemonCenterByIdAsync(center.Id);
+            
+            var createdPokemonCenter = await GetPokemonCenterByIdAsync(pokemonCenter.PokemonId);
             return createdPokemonCenter;
+        }
+
+        public async Task<PokemonCenter?> UpdatePokemonCenterMarketPriceAsync(PokemonCenter pokemonCenter, int? marketPrice)
+        { 
+            pokemonCenter.MarketPrice = marketPrice.Value;
+
+            await _context.SaveChangesAsync();
+            return await GetPokemonCenterByIdAsync(pokemonCenter.PokemonId);
         }
 
         public async Task DeletePokemonCenterAsync(PokemonCenter pokemonCenter)
         {
             _context.PokemonCenter.Remove(pokemonCenter);
+            await _context.SaveChangesAsync();
+        }
+
+        //transactions
+        public async Task<IEnumerable<Transaction>> GetTransactionsAsync()
+        {
+            return await _context.Transactions
+                .Include(t => t.User)
+                .Include(t => t.Pokemon)
+                .ToListAsync();
+        }
+
+        public async Task<Transaction?> GetTransactionByIdAsync(int id)
+        {
+            return await _context.Transactions
+                .Include(t => t.User)
+                .Include(t => t.Pokemon)
+                .FirstOrDefaultAsync(t => t.PokemonId == id);
+        }
+
+        public async Task<IEnumerable<Transaction>> GetTransactionsByUserIdAsync(int id)
+        {
+            return await _context.Transactions
+                .Where(t => t.UserId == id)
+                .AsNoTracking()
+                .ToListAsync();
+        }
+
+        public async Task<IEnumerable<Transaction>> GetTransactionsByPokemonIdAsync(int id)
+        {
+            return await _context.Transactions
+                .Include(t => t.Pokemon)
+                    .ThenInclude(p => p.Rarity)
+                .Include(t => t.Pokemon)
+                    .ThenInclude(p => p.Elements)
+                .Where(t => t.PokemonId == id)
+                .AsNoTracking()
+                .ToListAsync();
+        }
+
+        public IQueryable<Transaction> GetTransactionsHistoryAsync()
+        {
+            return _context.Transactions
+                .Include(t => t.Pokemon)
+                .Include(t => t.User)
+                .AsNoTracking();
+        }
+
+        public async Task CreateTransactionAsync(Transaction transaction)
+        {
+            _context.Transactions.Add(transaction);
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task DeleteTransactionAsync(Transaction transaction)
+        {
+            _context.Transactions.Remove(transaction);
             await _context.SaveChangesAsync();
         }
     }

@@ -1,6 +1,6 @@
 USE PokeShopDb;
 SET FOREIGN_KEY_CHECKS = 0;
-TRUNCATE TABLE UserPokemons; TRUNCATE TABLE PokemonCenter; TRUNCATE TABLE PokemonElement; TRUNCATE TABLE Pokemons; TRUNCATE TABLE Elements; TRUNCATE TABLE Rarities; TRUNCATE TABLE Users;
+TRUNCATE TABLE Transactions; TRUNCATE TABLE PokemonCenter; TRUNCATE TABLE PokemonElement; TRUNCATE TABLE Pokemons; TRUNCATE TABLE Elements; TRUNCATE TABLE Rarities; TRUNCATE TABLE Users;
 SET FOREIGN_KEY_CHECKS = 1;
 
 -- Rarities
@@ -29,22 +29,34 @@ INSERT INTO Elements (Id, Name) VALUES (18, 'Fairy');
 -- Users
 INSERT INTO Users (Id, UserName, PasswordHash, Coins, FirstLogin) VALUES (1, 'admin','1010', 0, 0);
 
--- Pokémons e Relações
+-- Pokémons and PokemonElements
 INSERT INTO Pokemons (Name, Nature, RarityId, OwnerId) VALUES ('Pikachu', 'Modest', 1, NULL);
 INSERT INTO PokemonElement (ElementsId, PokemonId) VALUES (4, 1);
-INSERT INTO PokemonCenter (PokemonId) VALUES (1);
 INSERT INTO Pokemons (Name, Nature, RarityId, OwnerId) VALUES ('Caterpie', 'Adamant', 1, NULL);
 INSERT INTO PokemonElement (ElementsId, PokemonId) VALUES (12, 2);
-INSERT INTO PokemonCenter (PokemonId) VALUES (2);
 INSERT INTO Pokemons (Name, Nature, RarityId, OwnerId) VALUES ('Charizard', 'Timid', 3, NULL);
 INSERT INTO PokemonElement (ElementsId, PokemonId) VALUES (2, 3);
 INSERT INTO PokemonElement (ElementsId, PokemonId) VALUES (10, 3);
-INSERT INTO PokemonCenter (PokemonId) VALUES (3);
 INSERT INTO Pokemons (Name, Nature, RarityId, OwnerId) VALUES ('Rayquaza', 'Jolly', 4, NULL);
 INSERT INTO PokemonElement (ElementsId, PokemonId) VALUES (15, 4);
 INSERT INTO PokemonElement (ElementsId, PokemonId) VALUES (10, 4);
-INSERT INTO PokemonCenter (PokemonId) VALUES (4);
 INSERT INTO Pokemons (Name, Nature, RarityId, OwnerId) VALUES ('Bisharp', 'Serious', 3, NULL);
 INSERT INTO PokemonElement (ElementsId, PokemonId) VALUES (16, 5);
 INSERT INTO PokemonElement (ElementsId, PokemonId) VALUES (17, 5);
-INSERT INTO PokemonCenter (PokemonId) VALUES (5);
+
+-- PokemonCenter
+INSERT INTO PokemonCenter (PokemonId, MarketPrice) 
+                    SELECT p.Id, r.Price 
+                    FROM Pokemons p 
+                    JOIN Rarities r ON p.RarityId = r.Id 
+                    WHERE p.Id = 1;
+INSERT INTO PokemonCenter (PokemonId, MarketPrice) 
+                    SELECT p.Id, r.Price 
+                    FROM Pokemons p 
+                    JOIN Rarities r ON p.RarityId = r.Id 
+                    WHERE p.Id = 2;
+INSERT INTO PokemonCenter (PokemonId, MarketPrice) 
+                    SELECT p.Id, r.Price 
+                    FROM Pokemons p 
+                    JOIN Rarities r ON p.RarityId = r.Id 
+                    WHERE p.Id = 3;

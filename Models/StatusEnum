@@ -1,0 +1,15 @@
+using System.Text.Json.Serialization;
+
+namespace ProjetoPokeShop.models
+{
+    [JsonConverter(typeof(JsonStringEnumConverter))]
+    public enum ActionStatus
+    {
+        Owned, 
+        Sold, 
+        Transferred
+
+        //Refunded - para lógica de venda sem lucro
+    }
+}
+

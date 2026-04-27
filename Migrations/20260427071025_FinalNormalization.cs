@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace ProjetoPokeShop.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialNormalization : Migration
+    public partial class FinalNormalization : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -57,7 +57,8 @@ namespace ProjetoPokeShop.Migrations
                     PasswordHash = table.Column<string>(type: "longtext", nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     Coins = table.Column<int>(type: "int", nullable: false),
-                    FirstLogin = table.Column<bool>(type: "tinyint(1)", nullable: false)
+                    FirstLogin = table.Column<bool>(type: "tinyint(1)", nullable: false),
+                    IsActive = table.Column<bool>(type: "tinyint(1)", nullable: false, defaultValue: true)
                 },
                 constraints: table =>
                 {
@@ -100,13 +101,12 @@ namespace ProjetoPokeShop.Migrations
                 name: "PokemonCenter",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
-                    PokemonId = table.Column<int>(type: "int", nullable: false)
+                    PokemonId = table.Column<int>(type: "int", nullable: false),
+                    MarketPrice = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_PokemonCenter", x => x.Id);
+                    table.PrimaryKey("PK_PokemonCenter", x => x.PokemonId);
                     table.ForeignKey(
                         name: "FK_PokemonCenter_Pokemons_PokemonId",
                         column: x => x.PokemonId,
@@ -142,37 +142,36 @@ namespace ProjetoPokeShop.Migrations
                 .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateTable(
-                name: "UserPokemons",
+                name: "Transactions",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
                     UserId = table.Column<int>(type: "int", nullable: false),
-                    AcquiredAt = table.Column<DateTime>(type: "datetime(6)", nullable: false),
-                    PokemonId = table.Column<int>(type: "int", nullable: false)
+                    PokemonId = table.Column<int>(type: "int", nullable: true),
+                    TransactionDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    Status = table.Column<string>(type: "longtext", nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    CoinsAdjustment = table.Column<string>(type: "longtext", nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4")
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_UserPokemons", x => x.Id);
+                    table.PrimaryKey("PK_Transactions", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_UserPokemons_Pokemons_PokemonId",
+                        name: "FK_Transactions_Pokemons_PokemonId",
                         column: x => x.PokemonId,
                         principalTable: "Pokemons",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.SetNull);
                     table.ForeignKey(
-                        name: "FK_UserPokemons_Users_UserId",
+                        name: "FK_Transactions_Users_UserId",
                         column: x => x.UserId,
                         principalTable: "Users",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                 })
                 .Annotation("MySql:CharSet", "utf8mb4");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_PokemonCenter_PokemonId",
-                table: "PokemonCenter",
-                column: "PokemonId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_PokemonElement_PokemonId",
@@ -190,19 +189,18 @@ namespace ProjetoPokeShop.Migrations
                 column: "RarityId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_UserPokemons_AcquiredAt",
-                table: "UserPokemons",
-                column: "AcquiredAt");
+                name: "IX_Transactions_PokemonId",
+                table: "Transactions",
+                column: "PokemonId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_UserPokemons_PokemonId",
-                table: "UserPokemons",
-                column: "PokemonId",
-                unique: true);
+                name: "IX_Transactions_TransactionDate",
+                table: "Transactions",
+                column: "TransactionDate");
 
             migrationBuilder.CreateIndex(
-                name: "IX_UserPokemons_UserId",
-                table: "UserPokemons",
+                name: "IX_Transactions_UserId",
+                table: "Transactions",
                 column: "UserId");
 
             migrationBuilder.CreateIndex(
@@ -222,7 +220,7 @@ namespace ProjetoPokeShop.Migrations
                 name: "PokemonElement");
 
             migrationBuilder.DropTable(
-                name: "UserPokemons");
+                name: "Transactions");
 
             migrationBuilder.DropTable(
                 name: "Elements");
