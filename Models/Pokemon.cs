@@ -8,13 +8,14 @@ namespace ProjetoPokeShop.Models
 
         public string Nature { get; set; } // Para possível lógica futura de maior raridade por natureza
 
-        public string Type { get; set; } // Para possível filter futuro por tipo
+        public ICollection<Element> Elements { get; set; } = new List<Element>(); // Para possível filter futuro por tipo
 
-        public int Value { get; set; }
+        public int RarityId { get; set; } 
 
-        public PokemonRarity Rarity { get; set; } // Common, Uncommon, Rare, Legendary
+        public Rarity Rarity {get; set; } // Common, Uncommon, Rare, Legendary
 
         public int? OwnerId { get; set; } // NULL = disponível
+<<<<<<< HEAD
         public User? Owner { get; set; }
         
         public static int GetDefaultValue(PokemonRarity rarity) => rarity switch
@@ -25,5 +26,9 @@ namespace ProjetoPokeShop.Models
             PokemonRarity.Legendary => 80,
             _ => 0
         };
+=======
+
+        public User? Owner { get; set; }
+>>>>>>> 354d50e5ecccea0eeae8ee7fa0c7838699225379
     }
 }

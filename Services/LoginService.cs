@@ -37,7 +37,11 @@ namespace ProjetoPokeShop.Services
             if (!user.FirstLogin)
             {
                 user.FirstLogin = true;
+<<<<<<< HEAD
                 user.Coins += 100;
+=======
+                
+>>>>>>> 354d50e5ecccea0eeae8ee7fa0c7838699225379
                 await _repository.UpdateUserFirstLogin(user);
             }
             return user;

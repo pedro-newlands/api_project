@@ -44,7 +44,11 @@ namespace ProjetoPokeShop.Controllers
             }
         }
         
+<<<<<<< HEAD
         [HttpPost("pokeball")]
+=======
+        [HttpPost("buy-pokeball")]
+>>>>>>> 354d50e5ecccea0eeae8ee7fa0c7838699225379
         public async Task<ActionResult<PokeballDto>> Pokeball([FromQuery]int userId)
         {
             try

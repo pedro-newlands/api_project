@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using ProjetoPokeShop.Data;
 
@@ -10,17 +11,17 @@ using ProjetoPokeShop.Data;
 namespace ProjetoPokeShop.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260427071025_FinalNormalization")]
+    partial class FinalNormalization
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
                 .HasAnnotation("ProductVersion", "7.0.7")
                 .HasAnnotation("Relational:MaxIdentifierLength", 64);
 
-<<<<<<< HEAD
-=======
             modelBuilder.Entity("ElementPokemon", b =>
                 {
                     b.Property<int>("ElementsId")
@@ -51,7 +52,6 @@ namespace ProjetoPokeShop.Migrations
                     b.ToTable("Elements");
                 });
 
->>>>>>> 354d50e5ecccea0eeae8ee7fa0c7838699225379
             modelBuilder.Entity("ProjetoPokeShop.Models.Pokemon", b =>
                 {
                     b.Property<int>("Id")
@@ -69,40 +69,20 @@ namespace ProjetoPokeShop.Migrations
                     b.Property<int?>("OwnerId")
                         .HasColumnType("int");
 
-<<<<<<< HEAD
-                    b.Property<string>("Rarity")
-                        .IsRequired()
-                        .HasColumnType("varchar(255)");
-
-                    b.Property<string>("Type")
-                        .IsRequired()
-                        .HasColumnType("varchar(255)");
-
-                    b.Property<int>("Value")
-=======
                     b.Property<int>("RarityId")
->>>>>>> 354d50e5ecccea0eeae8ee7fa0c7838699225379
                         .HasColumnType("int");
 
                     b.HasKey("Id");
 
                     b.HasIndex("OwnerId");
 
-<<<<<<< HEAD
-                    b.HasIndex("Rarity");
-
-                    b.HasIndex("Type");
-=======
                     b.HasIndex("RarityId");
->>>>>>> 354d50e5ecccea0eeae8ee7fa0c7838699225379
 
                     b.ToTable("Pokemons");
                 });
 
             modelBuilder.Entity("ProjetoPokeShop.Models.PokemonCenter", b =>
                 {
-<<<<<<< HEAD
-=======
                     b.Property<int>("PokemonId")
                         .HasColumnType("int");
 
@@ -116,14 +96,10 @@ namespace ProjetoPokeShop.Migrations
 
             modelBuilder.Entity("ProjetoPokeShop.Models.Rarity", b =>
                 {
->>>>>>> 354d50e5ecccea0eeae8ee7fa0c7838699225379
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-<<<<<<< HEAD
-                    b.Property<int>("PokemonId")
-=======
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("longtext");
@@ -157,22 +133,17 @@ namespace ProjetoPokeShop.Migrations
                         .HasColumnType("datetime(6)");
 
                     b.Property<int>("UserId")
->>>>>>> 354d50e5ecccea0eeae8ee7fa0c7838699225379
                         .HasColumnType("int");
 
                     b.HasKey("Id");
 
                     b.HasIndex("PokemonId");
 
-<<<<<<< HEAD
-                    b.ToTable("PokemonCenter");
-=======
                     b.HasIndex("TransactionDate");
 
                     b.HasIndex("UserId");
 
                     b.ToTable("Transactions");
->>>>>>> 354d50e5ecccea0eeae8ee7fa0c7838699225379
                 });
 
             modelBuilder.Entity("ProjetoPokeShop.Models.User", b =>
@@ -187,14 +158,11 @@ namespace ProjetoPokeShop.Migrations
                     b.Property<bool>("FirstLogin")
                         .HasColumnType("tinyint(1)");
 
-<<<<<<< HEAD
-=======
                     b.Property<bool>("IsActive")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("tinyint(1)")
                         .HasDefaultValue(true);
 
->>>>>>> 354d50e5ecccea0eeae8ee7fa0c7838699225379
                     b.Property<string>("PasswordHash")
                         .IsRequired()
                         .HasColumnType("longtext");
@@ -211,30 +179,6 @@ namespace ProjetoPokeShop.Migrations
                     b.ToTable("Users");
                 });
 
-<<<<<<< HEAD
-            modelBuilder.Entity("ProjetoPokeShop.Models.UserPokemon", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("AcquiredAt")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<int>("PokemonId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("UserId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("PokemonId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("UserPokemons");
-=======
             modelBuilder.Entity("ElementPokemon", b =>
                 {
                     b.HasOne("ProjetoPokeShop.Models.Element", null)
@@ -248,7 +192,6 @@ namespace ProjetoPokeShop.Migrations
                         .HasForeignKey("PokemonId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
->>>>>>> 354d50e5ecccea0eeae8ee7fa0c7838699225379
                 });
 
             modelBuilder.Entity("ProjetoPokeShop.Models.Pokemon", b =>
@@ -258,9 +201,6 @@ namespace ProjetoPokeShop.Migrations
                         .HasForeignKey("OwnerId")
                         .OnDelete(DeleteBehavior.SetNull);
 
-<<<<<<< HEAD
-                    b.Navigation("Owner");
-=======
                     b.HasOne("ProjetoPokeShop.Models.Rarity", "Rarity")
                         .WithMany()
                         .HasForeignKey("RarityId")
@@ -270,49 +210,30 @@ namespace ProjetoPokeShop.Migrations
                     b.Navigation("Owner");
 
                     b.Navigation("Rarity");
->>>>>>> 354d50e5ecccea0eeae8ee7fa0c7838699225379
                 });
 
             modelBuilder.Entity("ProjetoPokeShop.Models.PokemonCenter", b =>
                 {
                     b.HasOne("ProjetoPokeShop.Models.Pokemon", "Pokemon")
-<<<<<<< HEAD
-                        .WithMany()
-                        .HasForeignKey("PokemonId")
-=======
                         .WithOne()
                         .HasForeignKey("ProjetoPokeShop.Models.PokemonCenter", "PokemonId")
->>>>>>> 354d50e5ecccea0eeae8ee7fa0c7838699225379
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Pokemon");
                 });
 
-<<<<<<< HEAD
-            modelBuilder.Entity("ProjetoPokeShop.Models.UserPokemon", b =>
-=======
             modelBuilder.Entity("ProjetoPokeShop.Models.Transaction", b =>
->>>>>>> 354d50e5ecccea0eeae8ee7fa0c7838699225379
                 {
                     b.HasOne("ProjetoPokeShop.Models.Pokemon", "Pokemon")
                         .WithMany()
                         .HasForeignKey("PokemonId")
-<<<<<<< HEAD
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-=======
                         .OnDelete(DeleteBehavior.SetNull);
->>>>>>> 354d50e5ecccea0eeae8ee7fa0c7838699225379
 
                     b.HasOne("ProjetoPokeShop.Models.User", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
-<<<<<<< HEAD
-                        .OnDelete(DeleteBehavior.Cascade)
-=======
                         .OnDelete(DeleteBehavior.Restrict)
->>>>>>> 354d50e5ecccea0eeae8ee7fa0c7838699225379
                         .IsRequired();
 
                     b.Navigation("Pokemon");
