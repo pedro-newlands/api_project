@@ -1,9 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using ProjetoPokeShop.DTOs;
-<<<<<<< HEAD
-=======
 using ProjetoPokeShop.Models;
->>>>>>> 354d50e5ecccea0eeae8ee7fa0c7838699225379
 using ProjetoPokeShop.Services;
 
 namespace ProjetoPokeShop.Controllers
@@ -36,8 +33,6 @@ namespace ProjetoPokeShop.Controllers
             }
         }
 
-<<<<<<< HEAD
-=======
         [HttpGet("transactions/{id}")]
         public async Task<ActionResult<IEnumerable<Transaction>>> GetTransactionsAsync([FromRoute] int id)
         {
@@ -57,17 +52,12 @@ namespace ProjetoPokeShop.Controllers
             }
         }
 
->>>>>>> 354d50e5ecccea0eeae8ee7fa0c7838699225379
         [HttpPost("sell-pokemon")]
         public async Task<ActionResult<SellResultDto>> SellPokemon([FromBody] SellRequestDto dto)
         {
             try
             {
-<<<<<<< HEAD
-                var r = await _storageService.SellPokemonAsync(dto.UserId, dto.UserPokemonId);
-=======
                 var r = await _storageService.SellPokemonAsync(dto.UserId, dto.PokemonId);
->>>>>>> 354d50e5ecccea0eeae8ee7fa0c7838699225379
 
                 return Ok(r);
             }

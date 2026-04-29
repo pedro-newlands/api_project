@@ -9,11 +9,11 @@ namespace ProjetoPokeShop.Filters
 
     public AdminOnlyFilter(IConfiguration config) => _config = config;
 
-    public void OnActionExecuting(ActionExecutionContext context)
+    public void OnActionExecuting(ActionExecutingContext context)
     {
       var expectedPassword = _config["AdminSettings:SuperPassword"];
 
-      if (!context.HttpRequest.Request.Headers.TryGetValue("X-Super-Password", out var providedPassword)) 
+      if (!context.HttpContext.Request.Headers.TryGetValue("X-Super-Password", out var providedPassword)) 
       {
         context.Result = new UnauthorizedObjectResult(new { message = "Header 'X-Super-Password' missing"});
         return;
@@ -25,12 +25,13 @@ namespace ProjetoPokeShop.Filters
         {
           StatusCode = 403,
           Content = "Access denied: Invalid admin password "
-        }
+        };
+        
         return;
 
       }
     }
 
-    public void OnActionExecuted(OnActionExecutedContext context) { }
+    public void OnActionExecuted(ActionExecutedContext context) { }
   }
 }

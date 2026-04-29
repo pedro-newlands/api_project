@@ -4,7 +4,7 @@ using ProjetoPokeShop.DTOs;
 using ProjetoPokeShop.DTOs.Entity;
 using ProjetoPokeShop.Models;
 using ProjetoPokeShop.Services;
-using ProjetoPokeShop.Filters;
+using ProjetoPokeShop.Attributes;
 
 namespace ProjetoPokeShop.Controllers
 
@@ -28,7 +28,7 @@ namespace ProjetoPokeShop.Controllers
         }
 
         [HttpGet("user/{id}", Name = "GetUserById")]
-        public async Task<ActionResult<ResultDto<User>>> GetUserByIdAsync(, int id)
+        public async Task<ActionResult<ResultDto<User>>> GetUserByIdAsync(int id)
         {
             try
             {
@@ -48,7 +48,7 @@ namespace ProjetoPokeShop.Controllers
 
         [HttpPost("user/create")]
 
-        public async Task<ActionResult<ResultDto<User>>> CreateUserAsync(, [FromBody] UserDto dto)
+        public async Task<ActionResult<ResultDto<User>>> CreateUserAsync([FromBody] UserDto dto)
         {
             try
             {
@@ -67,7 +67,7 @@ namespace ProjetoPokeShop.Controllers
         }
 
         [HttpPatch("user/update/{id}")]
-        public async Task<ActionResult<ResultDto<User>>> UpdateUserAsync(, int id, [FromBody] UpdateUserDto dto)
+        public async Task<ActionResult<ResultDto<User>>> UpdateUserAsync(int id, [FromBody] UpdateUserDto dto)
         {
             try
             {
@@ -86,7 +86,7 @@ namespace ProjetoPokeShop.Controllers
         }
 
         [HttpDelete("user/delete/{id}")]
-        public async Task<ActionResult<ResultDto<User>>> DeleteUserAsync(, int id)
+        public async Task<ActionResult<ResultDto<User>>> DeleteUserAsync(int id)
         {
             try
             {
@@ -323,7 +323,6 @@ namespace ProjetoPokeShop.Controllers
 
         [HttpGet("transactions/history")]
         public async Task<ActionResult<ResultDto<IEnumerable<Transaction>>>> GetTransactionsHistory(
-            ,
             [FromQuery] int? year,
             [FromQuery] int? month,
             [FromQuery] int? day)

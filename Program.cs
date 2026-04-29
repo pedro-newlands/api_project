@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using ProjetoPokeShop.Data;
+using ProjetoPokeShop.Filters;
 using ProjetoPokeShop.Repositories;
 using ProjetoPokeShop.Services;
 

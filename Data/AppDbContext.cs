@@ -21,19 +21,11 @@ namespace ProjetoPokeShop.Data
         {
             base.OnModelCreating(modelBuilder);
 
-<<<<<<< HEAD
-            modelBuilder.Entity<UserPokemon>()
-                .HasOne(up => up.User)
-                .WithMany()
-                .HasForeignKey(p => p.UserId)
-                .OnDelete(DeleteBehavior.Cascade);
-=======
             // modelBuilder.Entity<User>()
             //     .ToTable(t => t.HasCheckConstraint(
             //         "CK_User_Admin_Always_Active",
             //         "Id <> 1 OR IsActive = 1"      
             //     ));
->>>>>>> 354d50e5ecccea0eeae8ee7fa0c7838699225379
 
             modelBuilder.Entity<User>()
                 .HasQueryFilter(u => u.IsActive);
@@ -56,18 +48,6 @@ namespace ProjetoPokeShop.Data
                 .HasForeignKey(p => p.OwnerId)
                 .OnDelete(DeleteBehavior.SetNull);
 
-<<<<<<< HEAD
-            modelBuilder.Entity<PokemonCenter>()
-                .HasOne(pc => pc.Pokemon)
-                .WithMany()
-                .HasForeignKey(pc => pc.PokemonId)
-                .OnDelete(DeleteBehavior.Cascade);
-
-            modelBuilder.Entity<Pokemon>()
-                .Property(p => p.Rarity)
-                .HasConversion<string>();
-                
-=======
             modelBuilder.Entity<Pokemon>()
                 .HasOne(p => p.Rarity)
                 .WithMany()
@@ -104,7 +84,6 @@ namespace ProjetoPokeShop.Data
                 .Property(r => r.Name)
                 .HasConversion<string>();
 
->>>>>>> 354d50e5ecccea0eeae8ee7fa0c7838699225379
             //indices
             modelBuilder.Entity<User>()
                 .HasIndex(u => u.UserName)
