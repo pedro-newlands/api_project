@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.OpenApi.Models;
 using ProjetoPokeShop.Data;
 using ProjetoPokeShop.Filters;
 using ProjetoPokeShop.Repositories;
@@ -27,7 +28,33 @@ builder.Services.AddControllers();
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new OpenApiInfo { Title = "PokeShop API", Version = "v1" });
+
+    c.AddSecurityDefinition("AdminPassword", new OpenApiSecurityScheme
+    {
+        In = ParameterLocation.Header,
+        Name = "X-Super-Password",
+        Type = SecuritySchemeType.ApiKey,
+        Description = "Digite a senha de administrador para acessar este endpoint"
+    });
+
+    c.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "AdminPassword"
+                }
+            },
+            Array.Empty<string>()
+        }
+    });
+});
 
 var app = builder.Build();
 

@@ -19,7 +19,7 @@ namespace ProjetoPokeShop.Services
         }
 
         //user management
-        public async Task<ResultDto<IEnumerable<User>>> GetAllUsersAsync(string superPassword)
+        public async Task<ResultDto<IEnumerable<User>>> GetAllUsersAsync()
         {
             var users = await _repository.GetUsersAsync();
 
@@ -30,7 +30,7 @@ namespace ProjetoPokeShop.Services
             };
         }
 
-        public async Task<ResultDto<User>> GetUserByIdAsync(string superPassword, int targetId)
+        public async Task<ResultDto<User>> GetUserByIdAsync(int targetId)
         {
             var user = await _repository.GetUserByIdAsync(targetId);
             if (user is null)
@@ -43,7 +43,7 @@ namespace ProjetoPokeShop.Services
             };
         }
 
-        public async Task<ResultDto<User>> CreateUserAsync(string superPassword, UserDto dto)
+        public async Task<ResultDto<User>> CreateUserAsync(UserDto dto)
         {
             if (await _repository.UserExistsByNameAsync(dto.UserName))
                 throw new InvalidOperationException("User with this name already exists");
@@ -65,7 +65,7 @@ namespace ProjetoPokeShop.Services
             };
         }
 
-        public async Task<ResultDto<User>> UpdateUserAsync(string superPassword, int targetId, UpdateUserDto dto)
+        public async Task<ResultDto<User>> UpdateUserAsync(int targetId, UpdateUserDto dto)
         {
             var targetUser = await _repository.GetUserByIdAsync(targetId);
             if (targetUser is null)
@@ -79,7 +79,7 @@ namespace ProjetoPokeShop.Services
             };
         }
 
-        public async Task<ResultDto<User>> DeleteUserAsync(string superPassword, int targetId)
+        public async Task<ResultDto<User>> DeleteUserAsync(int targetId)
         {
             if (targetId == 1)
                 throw new InvalidOperationException("Admin can not be deactivated");
@@ -100,7 +100,7 @@ namespace ProjetoPokeShop.Services
         }
 
         //pokemon management
-         public async Task<ResultDto<IEnumerable<Pokemon>>> GetAllPokemonsAsync(string superPassword)
+         public async Task<ResultDto<IEnumerable<Pokemon>>> GetAllPokemonsAsync()
         {
             var pokemons = await _repository.GetPokemonsAsync();
 
@@ -111,7 +111,7 @@ namespace ProjetoPokeShop.Services
             };
         }
 
-        public async Task<ResultDto<Pokemon>> GetPokemonByIdAsync(string superPassword, int targetId)
+        public async Task<ResultDto<Pokemon>> GetPokemonByIdAsync(int targetId)
         {
             var pokemon = await _repository.GetPokemonByIdAsync(targetId);
             if (pokemon is null)
@@ -124,7 +124,7 @@ namespace ProjetoPokeShop.Services
             };
         }
 
-        public async Task<ResultDto<Pokemon>> CreatePokemonAsync(string superPassword, PokemonDto dto)
+        public async Task<ResultDto<Pokemon>> CreatePokemonAsync(PokemonDto dto)
         {
             if (dto.OwnerId is not null)
             {
@@ -150,7 +150,7 @@ namespace ProjetoPokeShop.Services
             };
         }
 
-        public async Task<ResultDto<Pokemon>> UpdatePokemonAsync(string superPassword, int targetId, UpdatePokemonDto dto)
+        public async Task<ResultDto<Pokemon>> UpdatePokemonAsync(int targetId, UpdatePokemonDto dto)
         {
             var targetPokemon = await _repository.GetPokemonByIdAsync(targetId);
             if (targetPokemon is null)
@@ -182,7 +182,7 @@ namespace ProjetoPokeShop.Services
             };
         }
 
-        public async Task<ResultDto<Pokemon>> DeletePokemonAsync(string superPassword, int targetId)
+        public async Task<ResultDto<Pokemon>> DeletePokemonAsync(int targetId)
         {
             var targetPokemon = await _repository.GetPokemonByIdAsync(targetId);
 
@@ -200,7 +200,7 @@ namespace ProjetoPokeShop.Services
 
         //pokemonCenter management
 
-        public async Task<ResultDto<PokemonCenter>> CreatePokemonCenterAsync(string superPassword, PokemonCenterDto dto)
+        public async Task<ResultDto<PokemonCenter>> CreatePokemonCenterAsync(PokemonCenterDto dto)
         {
             var pokemon = await _repository.GetPokemonByIdAsync(dto.PokemonId);
 
@@ -228,7 +228,7 @@ namespace ProjetoPokeShop.Services
 
         }
 
-        public async Task<ResultDto<PokemonCenter>> UpdatePokemonCenterMarketPriceAsync(string superPassword, int targetId, UpdatePriceDto dto)
+        public async Task<ResultDto<PokemonCenter>> UpdatePokemonCenterMarketPriceAsync(int targetId, UpdatePriceDto dto)
         {
             var targetPokemonCenter = await _repository.GetPokemonCenterByIdAsync(targetId);
 
@@ -253,7 +253,7 @@ namespace ProjetoPokeShop.Services
             };
         }
 
-        public async Task<ResultDto<PokemonCenter>> DeletePokemonCenterAsync(string superPassword, int targetId)
+        public async Task<ResultDto<PokemonCenter>> DeletePokemonCenterAsync(int targetId)
         {
             var targetPokemonCenter = await _repository.GetPokemonCenterByIdAsync(targetId);
 
@@ -270,7 +270,7 @@ namespace ProjetoPokeShop.Services
             };
         }
 
-        public async Task<ResultDto<IEnumerable<Transaction>>> GetAllTransactionsAsync(string superPassword)
+        public async Task<ResultDto<IEnumerable<Transaction>>> GetAllTransactionsAsync()
         {
             var transactios = await _repository.GetTransactionsAsync();
 
@@ -281,7 +281,7 @@ namespace ProjetoPokeShop.Services
             };
         }
 
-        public async Task<ResultDto<Transaction>> GetTransactionByIdAsync(string superPassword, int targetId)
+        public async Task<ResultDto<Transaction>> GetTransactionByIdAsync(int targetId)
         {
             var transaction = await _repository.GetTransactionByIdAsync(targetId);
             if (transaction is null)
@@ -294,7 +294,7 @@ namespace ProjetoPokeShop.Services
             };
         }
 
-        public async Task<ResultDto<IEnumerable<Transaction>>> GetTransactionsByUserIdAsync(string superPassword, int targetId)
+        public async Task<ResultDto<IEnumerable<Transaction>>> GetTransactionsByUserIdAsync(int targetId)
         {
             var transactions = await _repository.GetTransactionsByUserIdAsync(targetId);
             if (transactions is null)
@@ -307,7 +307,7 @@ namespace ProjetoPokeShop.Services
             };
         }
 
-        public async Task<ResultDto<IEnumerable<Transaction>>> GetTransactionsByPokemonIdAsync(string superPassword, int targetId)
+        public async Task<ResultDto<IEnumerable<Transaction>>> GetTransactionsByPokemonIdAsync(int targetId)
         {
             var transactions = await _repository.GetTransactionsByPokemonIdAsync(targetId);
             if (transactions is null)
@@ -320,7 +320,7 @@ namespace ProjetoPokeShop.Services
             };
         }
 
-        public async Task<ResultDto<IEnumerable<Transaction>>> GetTransactionsHistoryAsync(string superPassword, int? year = null, int? month = null, int? day = null)
+        public async Task<ResultDto<IEnumerable<Transaction>>> GetTransactionsHistoryAsync(int? year = null, int? month = null, int? day = null)
         {
             IQueryable<Transaction> query = _repository.GetTransactionsHistoryAsync();
 
@@ -350,7 +350,7 @@ namespace ProjetoPokeShop.Services
             };
         }
 
-        public async Task<ResultDto<Transaction>> DeleteTransactionAsync(string superPassword, int targetId)
+        public async Task<ResultDto<Transaction>> DeleteTransactionAsync(int targetId)
         {
             var targetTransaction = await _repository.GetTransactionByIdAsync(targetId);
 
