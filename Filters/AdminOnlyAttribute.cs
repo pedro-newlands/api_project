@@ -3,12 +3,15 @@ using Microsoft.AspNetCore.Mvc.Filters;
 
 namespace ProjetoPokeShop.Filters 
 {
-  public class AdminOnlyAttribute : ActionFilterAttribute 
+  public class AdminOnlyFilter : IActionFilter 
   {
-    public override void OnActionExecuting(ActionExecutionContext context)
+    private readonly IConfiguration _config;
+
+    public AdminOnlyFilter(IConfiguration config) => _config = config;
+
+    public void OnActionExecuting(ActionExecutionContext context)
     {
-      var config = context.HttpRequest.RequestServices.GetService<IConfiguration>();
-      var expectedPassword = config["AdminSettings:SuperPassword"];
+      var expectedPassword = _config["AdminSettings:SuperPassword"];
 
       if (!context.HttpRequest.Request.Headers.TryGetValue("X-Super-Password", out var providedPassword)) 
       {
@@ -20,13 +23,14 @@ namespace ProjetoPokeShop.Filters
       {
         context.Result = new ContentResult 
         {
-          StatusCode: 403,
+          StatusCode = 403,
           Content = "Access denied: Invalid admin password "
         }
         return;
-      }
 
-      base.OnActionExecuting(context);
+      }
     }
+
+    public void OnActionExecuted(OnActionExecutedContext context) { }
   }
 }

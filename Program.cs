@@ -20,6 +20,8 @@ builder.Services.AddScoped<ICenterService, CenterService>();
 builder.Services.AddScoped<ILoginService, LoginService>();
 builder.Services.AddScoped<IStorageService, StorageService>();
 
+builder.Services.AddScoped<AdminOnlyFilter>();
+
 builder.Services.AddControllers();
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
