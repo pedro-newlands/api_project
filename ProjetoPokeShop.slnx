@@ -1,0 +1,14 @@
+<Solution>
+  <Folder Name="/Solution Items/">
+    <File Path=".gitignore" />
+    <File Path=".dockerignore" />
+    <File Path="docker-compose.yml" />
+    <File Path="README.md" />
+    <File Path=".editorconfig" />
+  </Folder>
+
+  <Project Path="src/PokeShop.API/PokeShop.API.csproj" />
+  <Project Path="src/PokeShop.Application/PokeShop.Application.csproj" />
+  <Project Path="src/PokeShop.Infra/PokeShop.Infra.csproj" />
+  <Project Path="src/PokeShop.Domain/PokeShop.Domain.csproj" />
+</Solution>
